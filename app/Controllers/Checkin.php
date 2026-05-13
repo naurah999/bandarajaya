@@ -1,0 +1,101 @@
+<?php
+
+namespace App\Controllers;
+
+use App\Models\CheckinModel;
+use App\Models\TiketModel;
+use App\Models\KursiModel;
+
+class Checkin extends BaseController
+{
+    protected $model;
+
+    public function __construct()
+    {
+        $this->model = new CheckinModel();
+    }
+
+    public function index()
+    {
+        $data = [
+            'title'    => 'Data Check-in',
+            'checkins' => $this->model->getWithRelations(),
+        ];
+        return view('checkin/index', $data);
+    }
+
+    public function getAvailableSeats(int $idTiket)
+    {
+        $tiketModel = new TiketModel();
+        $kursiModel = new KursiModel();
+        
+        $tiket = $tiketModel->find($idTiket);
+        if (!$tiket) {
+            return $this->response->setJSON([]);
+        }
+
+        $penerbanganModel = new \App\Models\PenerbanganModel();
+        $penerbangan = $penerbanganModel->find($tiket['ID_PENERBANGAN']);
+        
+        if (!$penerbangan) {
+            return $this->response->setJSON([]);
+        }
+
+        $seats = $kursiModel->getAvailableSeats($penerbangan['ID_PESAWAT'], $tiket['ID_PENERBANGAN']);
+        return $this->response->setJSON($seats);
+    }
+
+    public function create()
+    {
+        $tiketModel = new TiketModel();
+        $kursiModel = new KursiModel();
+        $data = [
+            'title'  => 'Proses Check-in',
+            'tikets' => $tiketModel->getWithRelations(),
+            'kursi'  => $kursiModel->getWithPesawat(),
+        ];
+        return view('checkin/create', $data);
+    }
+
+    public function store()
+    {
+        $this->model->insert([
+            'ID_TIKET'      => $this->request->getPost('id_tiket'),
+            'ID_KURSI'      => $this->request->getPost('id_kursi'),
+            'WAKTU_CHECKIN'  => date('Y-m-d H:i:s'),
+        ]);
+        return redirect()->to('/checkin')->with('success', 'Check-in berhasil diproses');
+    }
+
+    public function edit($id)
+    {
+        $tiketModel = new TiketModel();
+        $kursiModel = new KursiModel();
+        $data = [
+            'title'   => 'Edit Check-in',
+            'checkin' => $this->model->find($id),
+            'tikets'  => $tiketModel->getWithRelations(),
+            'kursi'   => $kursiModel->getWithPesawat(),
+        ];
+        return view('checkin/edit', $data);
+    }
+
+    public function update($id)
+    {
+        $this->model->update($id, [
+            'ID_TIKET' => $this->request->getPost('id_tiket'),
+            'ID_KURSI' => $this->request->getPost('id_kursi'),
+        ]);
+        return redirect()->to('/checkin')->with('success', 'Data check-in berhasil diubah');
+    }
+
+    public function delete($id)
+    {
+        try {
+            $this->model->delete($id);
+            return redirect()->to('/checkin')->with('success', 'Data check-in berhasil dihapus');
+        } catch (\Exception $e) {
+            return redirect()->to('/checkin')->with('error', 'Gagal menghapus! Data check-in ini masih terkait dengan bagasi atau boarding pass.');
+        }
+    }
+}
