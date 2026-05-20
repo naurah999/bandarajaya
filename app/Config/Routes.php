@@ -6,9 +6,8 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 
-// Dashboard
-$routes->get('/', 'Dashboard::index');
-$routes->get('/dashboard', 'Dashboard::index');
+// Default Route (Maskapai)
+$routes->get('/', 'Maskapai::index');
 
 // Maskapai
 $routes->get('/maskapai', 'Maskapai::index');
@@ -118,10 +117,4 @@ $routes->post('/detail-pembayaran/delete/(:num)', 'DetailPembayaran::delete/$1')
 $routes->get('/laporan/penjualan', 'Laporan::penjualan');
 $routes->get('/laporan/manifest', 'Laporan::manifest');
 
-// Karyawan
-$routes->get('/karyawan', 'Karyawan::index');
-$routes->get('/karyawan/create', 'Karyawan::create');
-$routes->post('/karyawan/store', 'Karyawan::store');
-$routes->get('/karyawan/edit/(:num)', 'Karyawan::edit/$1');
-$routes->post('/karyawan/update/(:num)', 'Karyawan::update/$1');
-$routes->post('/karyawan/delete/(:num)', 'Karyawan::delete/$1');
+

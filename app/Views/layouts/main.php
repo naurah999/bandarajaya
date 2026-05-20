@@ -607,12 +607,6 @@
     </div>
 
     <nav class="sidebar-nav">
-        <div class="nav-section">
-            <div class="nav-section-title">Overview</div>
-            <a href="<?= base_url('/') ?>" class="nav-item <?= (uri_string() == '' || uri_string() == 'dashboard') ? 'active' : '' ?>">
-                <i class="fas fa-th-large"></i> Dashboard
-            </a>
-        </div>
 
         <div class="nav-section">
             <div class="nav-section-title">Master Data</div>
@@ -622,11 +616,14 @@
             <a href="<?= base_url('/pesawat') ?>" class="nav-item <?= (str_starts_with(uri_string(), 'pesawat')) ? 'active' : '' ?>">
                 <i class="fas fa-plane-departure"></i> Pesawat
             </a>
-            <a href="<?= base_url('/karyawan') ?>" class="nav-item <?= (str_starts_with(uri_string(), 'karyawan')) ? 'active' : '' ?>">
-                <i class="fas fa-user-tie"></i> Karyawan
-            </a>
             <a href="<?= base_url('/gate') ?>" class="nav-item <?= (str_starts_with(uri_string(), 'gate')) ? 'active' : '' ?>">
                 <i class="fas fa-door-open"></i> Gate
+            </a>
+            <a href="<?= base_url('/penumpang') ?>" class="nav-item <?= (str_starts_with(uri_string(), 'penumpang')) ? 'active' : '' ?>">
+                <i class="fas fa-users"></i> Penumpang
+            </a>
+            <a href="<?= base_url('/kursi') ?>" class="nav-item <?= (str_starts_with(uri_string(), 'kursi')) ? 'active' : '' ?>">
+                <i class="fas fa-chair"></i> Kursi
             </a>
         </div>
 
@@ -634,9 +631,6 @@
             <div class="nav-section-title">Operasional</div>
             <a href="<?= base_url('/penerbangan') ?>" class="nav-item <?= (str_starts_with(uri_string(), 'penerbangan')) ? 'active' : '' ?>">
                 <i class="fas fa-route"></i> Penerbangan
-            </a>
-            <a href="<?= base_url('/penumpang') ?>" class="nav-item <?= (str_starts_with(uri_string(), 'penumpang')) ? 'active' : '' ?>">
-                <i class="fas fa-users"></i> Penumpang
             </a>
             <a href="<?= base_url('/tiket') ?>" class="nav-item <?= (str_starts_with(uri_string(), 'tiket')) ? 'active' : '' ?>">
                 <i class="fas fa-ticket-alt"></i> Tiket
@@ -711,22 +705,46 @@
 
 <script>
     // Live clock
-    function updateTime() {
+     function updateTime() {
         const now = new Date();
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
         document.getElementById('liveTime').textContent = now.toLocaleDateString('id-ID', options);
-    }
-    updateTime();
-    setInterval(updateTime, 1000);
+     }
+     updateTime();
+     setInterval(updateTime, 1000);
 
-    // Auto-dismiss alerts
-    setTimeout(() => {
+     // Auto-dismiss alerts
+     setTimeout(() => {
         document.querySelectorAll('.alert').forEach(el => {
             el.style.transition = 'opacity 0.5s';
             el.style.opacity = '0';
             setTimeout(() => el.remove(), 500);
         });
-    }, 4000);
+     }, 4000);
+
+     // Persist Sidebar Scroll Position
+     const sidebarNav = document.querySelector('.sidebar-nav');
+     if (sidebarNav) {
+         // Restore scroll position
+         const savedScrollTop = localStorage.getItem('sidebarScrollTop');
+         if (savedScrollTop !== null) {
+             sidebarNav.scrollTop = parseInt(savedScrollTop, 10);
+         }
+
+         // Scroll active link into view if needed
+         const activeLink = sidebarNav.querySelector('.nav-item.active');
+         if (activeLink) {
+             // Only auto-scroll if there was no manually saved position
+             if (savedScrollTop === null) {
+                 activeLink.scrollIntoView({ block: 'nearest' });
+             }
+         }
+
+         // Listen to scroll events and save position
+         sidebarNav.addEventListener('scroll', () => {
+             localStorage.setItem('sidebarScrollTop', sidebarNav.scrollTop);
+         });
+     }
 </script>
 
 </body>
