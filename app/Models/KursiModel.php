@@ -10,7 +10,7 @@ class KursiModel extends Model
     protected $primaryKey       = 'ID_KURSI';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $allowedFields    = ['ID_PESAWAT', 'NO_KURSI2', 'KELAS_PENERBANAN', 'STATUS_KURSI'];
+    protected $allowedFields    = ['ID_PESAWAT', 'NO_KURSI2', 'KELAS_PENERBANAN'];
 
     protected $validationRules = [
         'ID_PESAWAT'       => 'required|numeric',
@@ -20,8 +20,9 @@ class KursiModel extends Model
 
     public function getWithPesawat()
     {
-        return $this->select('KURSI.*, PESAWAT.KODE_PESAWAT, PESAWAT.TIPE_PESAWAT')
+        return $this->select('KURSI.*, PESAWAT.KODE_PESAWAT, PESAWAT.TIPE_PESAWAT, MASKAPAI.NAMA_MASKAPAI')
                     ->join('PESAWAT', 'PESAWAT.ID_PESAWAT = KURSI.ID_PESAWAT', 'left')
+                    ->join('MASKAPAI', 'MASKAPAI.ID_MASKAPAI = PESAWAT.ID_MASKAPAI', 'left')
                     ->findAll();
     }
 

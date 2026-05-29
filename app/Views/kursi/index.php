@@ -3,49 +3,7 @@
 <?= $this->section('content') ?>
 
 <style>
-    /* Tabs styling */
-    .tabs-navigation {
-        display: flex;
-        gap: 12px;
-        margin-bottom: 24px;
-        border-bottom: 2px solid var(--border-color);
-        padding-bottom: 12px;
-    }
 
-    .tab-button {
-        background: transparent;
-        border: none;
-        padding: 10px 20px;
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--text-secondary);
-        cursor: pointer;
-        border-radius: 8px;
-        transition: var(--transition);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .tab-button:hover {
-        background: #f1f5f9;
-        color: var(--accent-primary);
-    }
-
-    .tab-button.active {
-        background: #eff6ff;
-        color: var(--accent-primary);
-        box-shadow: var(--shadow-sm);
-    }
-
-    .tab-pane {
-        display: none;
-    }
-
-    .tab-pane.active {
-        display: block;
-        animation: fadeIn 0.4s ease;
-    }
 
     /* Filter & Info Section */
     .filter-card {
@@ -292,20 +250,136 @@
         font-weight: 600;
         margin-top: 2px;
     }
+
+    /* Bulk Edit Styles */
+    .seat.selected {
+        outline: 3px solid #3b82f6 !important;
+        outline-offset: 2px !important;
+        transform: scale(1.1) !important;
+        z-index: 10 !important;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.6) !important;
+    }
+
+    .bulk-bar {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(120px);
+        background: #0f172a;
+        color: white;
+        padding: 14px 24px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        z-index: 1000;
+        border: 1px solid #334155;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
+        opacity: 0;
+        pointer-events: none;
+    }
+    
+    .bulk-bar.show {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .bulk-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13.5px;
+        font-weight: 500;
+    }
+
+    .bulk-info i {
+        color: #3b82f6;
+        font-size: 16px;
+    }
+
+    .bulk-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .bulk-actions .btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .switch-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: white;
+        padding: 8px 18px;
+        border-radius: 100px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .switch-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 38px;
+        height: 20px;
+        margin-bottom: 0;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #cbd5e1;
+        transition: .3s;
+        border-radius: 34px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 14px;
+        width: 14px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .3s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #3b82f6;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(18px);
+    }
 </style>
 
-<!-- Tabs Navigation -->
-<div class="tabs-navigation">
-    <button class="tab-button active" onclick="switchTab(this, 'peta-kursi')">
-        <i class="fas fa-map"></i> Visual Peta Kursi
-    </button>
-    <button class="tab-button" onclick="switchTab(this, 'kelola-data')">
-        <i class="fas fa-tasks"></i> Kelola Data Kursi (CRUD)
-    </button>
-</div>
-
-<!-- Tab Content: Visual Seating Map -->
-<div id="peta-kursi" class="tab-pane active">
+<!-- Content: Visual Seating Map -->
+<div>
     <!-- Filter Card -->
     <div class="filter-card">
         <form method="get" action="<?= base_url('/kursi') ?>" id="flightFilterForm">
@@ -346,20 +420,30 @@
         </div>
     <?php else: ?>
         <div class="seating-section">
-            <!-- Seating Legend -->
-            <div class="legend-container">
-                <div class="legend-item">
-                    <div class="legend-color" style="background:#f0f9ff; border-color:#3b82f6;"></div>
-                    <span>Ekonomi (Tersedia)</span>
+            <!-- Seating Legend & Controls -->
+            <div style="display:flex; justify-content:center; align-items:center; gap:20px; margin-bottom:30px; flex-wrap:wrap; width:100%;">
+                <div class="legend-container" style="margin-bottom:0;">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background:#f0f9ff; border-color:#3b82f6;"></div>
+                        <span>Ekonomi (Tersedia)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background:#fffbeb; border-color:#f59e0b;"></div>
+                        <span>Bisnis (Tersedia)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background:#f1f5f9; border-color:#cbd5e1;"></div>
+                        <span>Terisi (Check-in)</span>
+                    </div>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background:#fffbeb; border-color:#f59e0b;"></div>
-                    <span>Bisnis (Tersedia)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background:#f1f5f9; border-color:#cbd5e1;"></div>
-                    <span>Terisi (Check-in)</span>
-                </div>
+
+                <label class="switch-container">
+                    <span class="switch-label">Mode Blok / Seleksi Massal</span>
+                    <span class="switch">
+                        <input type="checkbox" id="bulkModeToggle" onchange="toggleBulkMode(this)">
+                        <span class="slider"></span>
+                    </span>
+                </label>
             </div>
 
             <!-- Plane Hull Rendering -->
@@ -425,7 +509,12 @@
                                         $classClass = ($seat['KELAS_PENERBANAN'] == 'Bisnis') ? 'seat-business' : 'seat-economy';
                                         $statusClass = $isOccupied ? 'seat-occupied' : 'seat-available';
                                         ?>
-                                        <div class="seat <?= $classClass ?> <?= $statusClass ?>">
+                                        <div class="seat <?= $classClass ?> <?= $statusClass ?>"
+                                             data-id="<?= $seat['ID_KURSI'] ?>"
+                                             data-no="<?= esc($seat['NO_KURSI2']) ?>"
+                                             data-class="<?= esc($seat['KELAS_PENERBANAN']) ?>"
+                                             data-occupied="<?= $isOccupied ? 'true' : 'false' ?>"
+                                             onclick="toggleSeatClass(this)">
                                             <?= $c ?>
                                             
                                             <!-- Tooltip details -->
@@ -463,7 +552,12 @@
                                         $classClass = ($seat['KELAS_PENERBANAN'] == 'Bisnis') ? 'seat-business' : 'seat-economy';
                                         $statusClass = $isOccupied ? 'seat-occupied' : 'seat-available';
                                         ?>
-                                        <div class="seat <?= $classClass ?> <?= $statusClass ?>">
+                                        <div class="seat <?= $classClass ?> <?= $statusClass ?>"
+                                             data-id="<?= $seat['ID_KURSI'] ?>"
+                                             data-no="<?= esc($seat['NO_KURSI2']) ?>"
+                                             data-class="<?= esc($seat['KELAS_PENERBANAN']) ?>"
+                                             data-occupied="<?= $isOccupied ? 'true' : 'false' ?>"
+                                             onclick="toggleSeatClass(this)">
                                             <?= $c ?>
                                             
                                             <!-- Tooltip details -->
@@ -518,95 +612,207 @@
     <?php endif; ?>
 </div>
 
-<!-- Tab Content: Seating CRUD Table Management -->
-<div id="kelola-data" class="tab-pane">
-    <div class="card">
-        <div class="card-header">
-            <h2>Data Kursi Pesawat (Manajemen CRUD)</h2>
-            <a href="<?= base_url('/kursi/create') ?>" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Tambah Kursi
-            </a>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Maskapai</th>
-                            <th>Tipe Pesawat</th>
-                            <th>Kelas</th>
-                            <th>No. Kursi</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (empty($kursi)): ?>
-                            <tr>
-                                <td colspan="6" class="empty-state">
-                                    <i class="fas fa-chair"></i>
-                                    <p>Data kursi masih kosong.</p>
-                                </td>
-                            </tr>
-                        <?php else: ?>
-                            <?php foreach ($kursi as $k): ?>
-                                <tr>
-                                    <td><?= esc($k['ID_KURSI']) ?></td>
-                                    <td style="font-weight: 600; color: var(--text-primary);"><?= esc($k['NAMA_MASKAPAI']) ?></td>
-                                    <td><?= esc($k['TIPE_PESAWAT']) ?> (<?= esc($k['KODE_PESAWAT']) ?>)</td>
-                                    <td>
-                                        <span class="badge <?= ($k['KELAS_PENERBANAN'] == 'Bisnis') ? 'badge-warning' : 'badge-info' ?>">
-                                            <?= esc($k['KELAS_PENERBANAN']) ?>
-                                        </span>
-                                    </td>
-                                    <td><span class="badge badge-success"><?= esc($k['NO_KURSI2']) ?></span></td>
-                                    <td>
-                                        <div class="action-btns">
-                                            <a href="<?= base_url('/kursi/edit/' . $k['ID_KURSI']) ?>" class="btn btn-warning btn-sm">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <form action="<?= base_url('/kursi/delete/' . $k['ID_KURSI']) ?>" method="post" style="display:inline;" onsubmit="return confirm('Hapus data kursi ini?')">
-                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<!-- Bulk Edit Floating Bar -->
+<div id="bulk-edit-bar" class="bulk-bar">
+    <div class="bulk-info">
+        <i class="fas fa-th"></i>
+        <span><strong id="selected-count">0</strong> kursi terpilih</span>
+    </div>
+    <div class="bulk-actions">
+        <button class="btn btn-warning btn-sm" onclick="applyBulkClass('Bisnis')"><i class="fas fa-crown"></i> Set Bisnis</button>
+        <button class="btn btn-info btn-sm" style="color: white; background: #3b82f6; border-color: #3b82f6;" onclick="applyBulkClass('Ekonomi')"><i class="fas fa-chair"></i> Set Ekonomi</button>
+        <button class="btn btn-secondary btn-sm" onclick="cancelBulkSelection()"><i class="fas fa-times"></i> Batal</button>
     </div>
 </div>
 
 <script>
-    // Tab switching function
-    function switchTab(button, tabId) {
-        // Remove active class from all buttons and panes
-        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+    // Toast notification function
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.style.position = 'fixed';
+        toast.style.top = '24px';
+        toast.style.right = '24px';
+        toast.style.padding = '14px 24px';
+        toast.style.borderRadius = '12px';
+        toast.style.background = type === 'success' ? 'var(--success-bg, #ecfdf5)' : 'var(--danger-bg, #fef2f2)';
+        toast.style.color = type === 'success' ? 'var(--success, #059669)' : 'var(--danger, #dc2626)';
+        toast.style.border = '1px solid ' + (type === 'success' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)');
+        toast.style.boxShadow = 'var(--shadow-lg)';
+        toast.style.zIndex = '9999';
+        toast.style.fontSize = '14px';
+        toast.style.fontWeight = '600';
+        toast.style.display = 'flex';
+        toast.style.alignItems = 'center';
+        toast.style.gap = '10px';
+        toast.style.fontFamily = 'Inter, sans-serif';
+        toast.style.animation = 'slideDown 0.3s ease forwards';
 
-        // Add active class to selected button and pane
-        button.classList.add('active');
-        document.getElementById(tabId).classList.add('active');
-        
-        // Save selected tab in localStorage
-        localStorage.setItem('activeKursiTab', tabId);
+        const icon = document.createElement('i');
+        icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+        toast.appendChild(icon);
+
+        const text = document.createTextNode(message);
+        toast.appendChild(text);
+
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-20px)';
+            setTimeout(() => toast.remove(), 500);
+        }, 3000);
     }
-    
-    // Restore tab on reload
-    document.addEventListener("DOMContentLoaded", function() {
-        const savedTab = localStorage.getItem('activeKursiTab');
-        if (savedTab) {
-            const btn = Array.from(document.querySelectorAll('.tab-button')).find(
-                b => b.getAttribute('onclick').includes(savedTab)
-            );
-            if (btn) {
-                switchTab(btn, savedTab);
-            }
+
+    // Bulk selection state variables
+    let bulkMode = false;
+    let selectedSeats = [];
+
+    function toggleBulkMode(checkbox) {
+        bulkMode = checkbox.checked;
+        if (!bulkMode) {
+            cancelBulkSelection();
         }
-    });
+    }
+
+    function cancelBulkSelection() {
+        document.querySelectorAll('.seat.selected').forEach(s => s.classList.remove('selected'));
+        selectedSeats = [];
+        updateBulkBar();
+    }
+
+    function updateBulkBar() {
+        const bar = document.getElementById('bulk-edit-bar');
+        const countSpan = document.getElementById('selected-count');
+        
+        if (selectedSeats.length > 0) {
+            countSpan.textContent = selectedSeats.length;
+            bar.classList.add('show');
+        } else {
+            bar.classList.remove('show');
+        }
+    }
+
+    function applyBulkClass(newClass) {
+        if (selectedSeats.length === 0) return;
+
+        if (!confirm(`Ubah kelas ${selectedSeats.length} kursi terpilih menjadi ${newClass}?`)) {
+            return;
+        }
+
+        // Send AJAX request for bulk update
+        fetch(`<?= base_url('/kursi/bulk-update-class') ?>`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                ids: selectedSeats,
+                kelas: newClass
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                showToast(data.message, 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 800);
+            } else {
+                showToast(data.message || 'Gagal mengubah kelas kursi.', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Terjadi kesalahan koneksi.', 'danger');
+        });
+    }
+
+    // Toggle seat class function
+    function toggleSeatClass(element) {
+        const isOccupied = element.getAttribute('data-occupied') === 'true';
+        if (isOccupied) {
+            showToast('Kursi ini sudah terisi, kelas tidak dapat diubah.', 'danger');
+            return;
+        }
+
+        const seatId = parseInt(element.getAttribute('data-id'));
+        const seatNo = element.getAttribute('data-no');
+
+        // Check if bulk mode is active
+        if (bulkMode) {
+            const index = selectedSeats.indexOf(seatId);
+            if (index > -1) {
+                // Deselect seat
+                selectedSeats.splice(index, 1);
+                element.classList.remove('selected');
+            } else {
+                // Select seat
+                selectedSeats.push(seatId);
+                element.classList.add('selected');
+            }
+            updateBulkBar();
+            return;
+        }
+
+        // Normal single click toggle mode
+        const currentClass = element.getAttribute('data-class');
+        const newClass = currentClass === 'Bisnis' ? 'Ekonomi' : 'Bisnis';
+
+        if (!confirm(`Ubah kelas kursi ${seatNo} menjadi ${newClass}?`)) {
+            return;
+        }
+
+        // Send AJAX request
+        fetch(`<?= base_url('/kursi/toggle-class/') ?>${seatId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Update element attributes immediately for instant feedback
+                element.setAttribute('data-class', data.new_class);
+                
+                element.classList.remove('seat-business', 'seat-economy');
+                if (data.new_class === 'Bisnis') {
+                    element.classList.add('seat-business');
+                } else {
+                    element.classList.add('seat-economy');
+                }
+
+                const badge = element.querySelector('.badge');
+                if (badge) {
+                    badge.textContent = data.new_class;
+                    badge.classList.remove('badge-warning', 'badge-info');
+                    if (data.new_class === 'Bisnis') {
+                        badge.classList.add('badge-warning');
+                    } else {
+                        badge.classList.add('badge-info');
+                    }
+                }
+
+                showToast(`Kelas kursi ${seatNo} berhasil diubah menjadi ${data.new_class}.`, 'success');
+                
+                // Reload after 800ms to synchronize all data (stats and CRUD table)
+                setTimeout(() => {
+                    window.location.reload();
+                }, 800);
+            } else {
+                showToast(data.message || 'Gagal mengubah kelas kursi.', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Terjadi kesalahan koneksi.', 'danger');
+        });
+    }
+
+
 </script>
 
 <?= $this->endSection() ?>

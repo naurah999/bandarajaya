@@ -63,7 +63,6 @@ class Pesawat extends BaseController
                 'ID_PESAWAT'       => $pesawatId,
                 'NO_KURSI2'        => $noKursi,
                 'KELAS_PENERBANAN' => 'Ekonomi', // Default
-                'STATUS_KURSI'     => 'Tersedia'
             ]);
         }
 

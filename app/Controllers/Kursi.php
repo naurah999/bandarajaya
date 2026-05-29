@@ -50,6 +50,32 @@ class Kursi extends BaseController
             $seats = $this->model->where('ID_PESAWAT', $idPesawat)
                                  ->orderBy('NO_KURSI2', 'ASC')
                                  ->findAll();
+
+            // Auto-generate seats if count is less than capacity
+            if ($pesawat && count($seats) < (int)$pesawat['KAPASITAS']) {
+                $kapasitas = (int)$pesawat['KAPASITAS'];
+                $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+                $existingNos = array_column($seats, 'NO_KURSI2');
+                
+                for ($i = 0; $i < $kapasitas; $i++) {
+                    $row = floor($i / 6) + 1;
+                    $letter = $letters[$i % 6];
+                    $noKursi = $row . $letter;
+                    
+                    if (!in_array($noKursi, $existingNos)) {
+                        $this->model->insert([
+                            'ID_PESAWAT'       => $idPesawat,
+                            'NO_KURSI2'        => $noKursi,
+                            'KELAS_PENERBANAN' => 'Ekonomi', // Default
+                        ]);
+                    }
+                }
+                
+                // Fetch again after auto-generating
+                $seats = $this->model->where('ID_PESAWAT', $idPesawat)
+                                     ->orderBy('NO_KURSI2', 'ASC')
+                                     ->findAll();
+            }
                                  
             // Get occupied seats and passenger details for this flight
             $occupied = $this->model->db->table('CHECKIN')
@@ -76,7 +102,6 @@ class Kursi extends BaseController
             'seats'            => $seats,
             'occupiedMap'      => $occupiedMap,
             'pesawat'          => $pesawat,
-            'kursi'            => $this->model->getWithPesawat(),
         ];
         
         return view('kursi/index', $data);
@@ -132,6 +157,89 @@ class Kursi extends BaseController
             return redirect()->back()->withInput()->with('error', implode(' ', $this->model->errors()));
         }
         return redirect()->to('/kursi')->with('success', 'Data kursi berhasil diubah');
+    }
+
+    public function toggleClass($id)
+    {
+        $checkinModel = new \App\Models\CheckinModel();
+        $isOccupied = $checkinModel->where('ID_KURSI', $id)->countAllResults() > 0;
+        if ($isOccupied) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Kursi ini sudah terisi oleh penumpang (Check-in), kelas tidak dapat diubah.'
+            ]);
+        }
+
+        $seat = $this->model->find($id);
+        if (!$seat) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Kursi tidak ditemukan.'
+            ]);
+        }
+
+        $newClass = ($seat['KELAS_PENERBANAN'] == 'Bisnis') ? 'Ekonomi' : 'Bisnis';
+        
+        if ($this->model->update($id, ['KELAS_PENERBANAN' => $newClass])) {
+            return $this->response->setJSON([
+                'status' => 'success',
+                'new_class' => $newClass
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'status' => 'error',
+            'message' => 'Gagal memperbarui kelas kursi.'
+        ]);
+    }
+
+    public function bulkUpdateClass()
+    {
+        $json = $this->request->getJSON();
+        if (!$json || empty($json->ids) || empty($json->kelas)) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Data tidak lengkap.'
+            ]);
+        }
+
+        $ids = $json->ids;
+        $newClass = $json->kelas;
+
+        if (!in_array($newClass, ['Bisnis', 'Ekonomi'])) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Kelas penerbangan tidak valid.'
+            ]);
+        }
+
+        // Check if any of these seats are occupied (have checkins)
+        $checkinModel = new \App\Models\CheckinModel();
+        $occupiedCount = $checkinModel->whereIn('ID_KURSI', $ids)->countAllResults();
+
+        if ($occupiedCount > 0) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Beberapa kursi yang dipilih sudah terisi oleh penumpang (Check-in), kelas tidak dapat diubah.'
+            ]);
+        }
+
+        // Perform bulk update
+        $updated = $this->model->whereIn('ID_KURSI', $ids)
+                               ->set(['KELAS_PENERBANAN' => $newClass])
+                               ->update();
+
+        if ($updated) {
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => count($ids) . ' kursi berhasil diubah ke kelas ' . $newClass
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'status' => 'error',
+            'message' => 'Gagal memperbarui kelas kursi.'
+        ]);
     }
 
     public function delete($id)

@@ -58,6 +58,7 @@ $routes->post('/tiket/update/(:num)', 'Tiket::update/$1');
 $routes->post('/tiket/delete/(:num)', 'Tiket::delete/$1');
 
 $routes->get('/checkin/get-available-seats/(:num)', 'Checkin::getAvailableSeats/$1');
+$routes->get('/checkin/get-all-seats/(:num)', 'Checkin::getAllSeats/$1');
 $routes->get('/checkin', 'Checkin::index');
 $routes->get('/checkin/create', 'Checkin::create');
 $routes->post('/checkin/store', 'Checkin::store');
@@ -72,6 +73,8 @@ $routes->post('/kursi/store', 'Kursi::store');
 $routes->get('/kursi/edit/(:num)', 'Kursi::edit/$1');
 $routes->post('/kursi/update/(:num)', 'Kursi::update/$1');
 $routes->post('/kursi/delete/(:num)', 'Kursi::delete/$1');
+$routes->post('/kursi/toggle-class/(:num)', 'Kursi::toggleClass/$1');
+$routes->post('/kursi/bulk-update-class', 'Kursi::bulkUpdateClass');
 
 // Bagasi
 $routes->get('/bagasi', 'Bagasi::index');
