@@ -15,10 +15,10 @@
                 <thead>
                     <tr>
                         <th>Waktu</th>
-                        <th>Maskapai & Pesawat</th>
+                        <th>Kode</th>
+                        <th>Pesawat</th>
                         <th>Rute</th>
-                        <th>Gate</th>
-                        <th>Status</th>
+                        <th>Gate / Harga</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -38,8 +38,11 @@
                                     <div style="font-size: 11px;"><?= date('d M Y', strtotime($p['TANGGAL_BERANGKAT'])) ?></div>
                                 </td>
                                 <td>
-                                    <div style="font-weight: 500;"><?= esc($p['NAMA_MASKAPAI']) ?></div>
-                                    <div style="font-size: 12px; color: var(--text-muted);"><?= esc($p['TIPE_PESAWAT']) ?> (<?= esc($p['KODE_MASKAPAI']) ?>)</div>
+                                    <span class="badge badge-warning" style="font-size: 13px; font-weight: 700;"><?= esc($p['KODE_PENERBANGAN'] ?? '-') ?></span>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 500;"><?= esc($p['TIPE_PESAWAT']) ?></div>
+                                    <div style="font-size: 12px; color: var(--text-muted);"><?= esc($p['NAMA_MASKAPAI']) ?></div>
                                 </td>
                                 <td>
                                     <div style="display:flex; align-items:center; gap:8px;">
@@ -48,8 +51,10 @@
                                         <span><?= esc($p['KOTA_TUJUAN']) ?></span>
                                     </div>
                                 </td>
-                                <td><span class="badge badge-info">Gate <?= esc($p['NOMOR_GATE']) ?></span></td>
-                                <td><span class="badge badge-success">On Schedule</span></td>
+                                <td>
+                                    <div style="margin-bottom: 4px;"><span class="badge badge-info">Gate <?= esc($p['NOMOR_GATE']) ?></span></div>
+                                    <div style="font-weight: 700; color: var(--success); font-size: 12px;">Rp <?= number_format($p['HARGA'] ?? 0, 0, ',', '.') ?></div>
+                                </td>
                                 <td>
                                     <div class="action-btns">
                                         <a href="<?= base_url('/penerbangan/edit/' . $p['ID_PENERBANGAN']) ?>" class="btn btn-warning btn-sm">

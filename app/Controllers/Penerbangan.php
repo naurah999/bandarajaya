@@ -30,7 +30,7 @@ class Penerbangan extends BaseController
         $gateModel    = new GateModel();
         $data = [
             'title'   => 'Tambah Penerbangan',
-            'pesawat' => $pesawatModel->getWithMaskapai(),
+            'pesawat' => $pesawatModel->getWithCatalog(),
             'gates'   => $gateModel->findAll(),
         ];
         return view('penerbangan/create', $data);
@@ -41,10 +41,12 @@ class Penerbangan extends BaseController
         $data = [
             'ID_PESAWAT'        => $this->request->getPost('id_pesawat'),
             'ID_GATE'           => $this->request->getPost('id_gate'),
+            'KODE_PENERBANGAN'  => $this->request->getPost('kode_penerbangan'),
             'TANGGAL_BERANGKAT' => $this->request->getPost('tanggal_berangkat'),
             'WAKTU_BERANGKAT'   => $this->request->getPost('waktu_berangkat'),
             'KOTA_ASAL'         => $this->request->getPost('kota_asal'),
             'KOTA_TUJUAN'       => $this->request->getPost('kota_tujuan'),
+            'HARGA'             => $this->request->getPost('harga'),
         ];
 
         if (!$this->model->insert($data)) {
@@ -63,7 +65,7 @@ class Penerbangan extends BaseController
         $data = [
             'title'       => 'Edit Penerbangan',
             'penerbangan' => $penerbangan,
-            'pesawat'     => $pesawatModel->getWithMaskapai(),
+            'pesawat'     => $pesawatModel->getWithCatalog(),
             'gates'       => $gateModel->findAll(),
         ];
         return view('penerbangan/edit', $data);
@@ -74,10 +76,12 @@ class Penerbangan extends BaseController
         $data = [
             'ID_PESAWAT'        => $this->request->getPost('id_pesawat'),
             'ID_GATE'           => $this->request->getPost('id_gate'),
+            'KODE_PENERBANGAN'  => $this->request->getPost('kode_penerbangan'),
             'TANGGAL_BERANGKAT' => $this->request->getPost('tanggal_berangkat'),
             'WAKTU_BERANGKAT'   => $this->request->getPost('waktu_berangkat'),
             'KOTA_ASAL'         => $this->request->getPost('kota_asal'),
             'KOTA_TUJUAN'       => $this->request->getPost('kota_tujuan'),
+            'HARGA'             => $this->request->getPost('harga'),
         ];
 
         if (!$this->model->update($id, $data)) {

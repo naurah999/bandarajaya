@@ -5,20 +5,20 @@
 <div style="max-width: 800px; margin: 0 auto;">
     <div class="card">
         <div class="card-header">
-            <h2>Edit Maskapai</h2>
+            <h2>Edit Profil Maskapai</h2>
             <a href="<?= base_url('/maskapai') ?>" class="btn btn-back">
                 <i class="fas fa-arrow-left"></i> Kembali
             </a>
         </div>
         <div class="card-body">
-            <form action="<?= base_url('/maskapai/update/' . $maskapai['ID_MASKAPAI']) ?>" method="post">
+            <form action="<?= base_url('/maskapai/update') ?>" method="post">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="nama_maskapai">Nama Maskapai</label>
                         <input type="text" name="nama_maskapai" id="nama_maskapai" class="form-control" value="<?= esc($maskapai['NAMA_MASKAPAI']) ?>" required>
                     </div>
                     <div class="form-group">
-                        <label for="kode_maskapai">Kode Maskapai</label>
+                        <label for="kode_maskapai">Kode Maskapai (IATA)</label>
                         <input type="text" name="kode_maskapai" id="kode_maskapai" class="form-control" value="<?= esc($maskapai['KODE_MASKAPAI']) ?>" required>
                     </div>
                 </div>

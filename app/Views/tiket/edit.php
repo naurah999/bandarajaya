@@ -28,8 +28,8 @@
                     <select name="id_penerbangan" id="id_penerbangan" class="form-control" required>
                         <?php foreach ($penerbangan as $p): ?>
                             <option value="<?= $p['ID_PENERBANGAN'] ?>" <?= $p['ID_PENERBANGAN'] == $tiket['ID_PENERBANGAN'] ? 'selected' : '' ?>>
-                                [<?= date('d M', strtotime($p['TANGGAL_BERANGKAT'])) ?> <?= date('H:i', strtotime($p['WAKTU_BERANGKAT'])) ?>] 
-                                <?= esc($p['NAMA_MASKAPAI']) ?>: <?= esc($p['KOTA_ASAL']) ?> -> <?= esc($p['KOTA_TUJUAN']) ?>
+                                [<?= esc($p['KODE_PENERBANGAN'] ?? '') ?>] <?= date('d M', strtotime($p['TANGGAL_BERANGKAT'])) ?> <?= date('H:i', strtotime($p['WAKTU_BERANGKAT'])) ?> | 
+                                <?= esc($p['KOTA_ASAL']) ?> -> <?= esc($p['KOTA_TUJUAN']) ?> (Rp <?= number_format($p['HARGA'] ?? 0, 0, ',', '.') ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -42,7 +42,7 @@
                     </div>
                     <div class="form-group">
                         <label for="harga">Harga Tiket</label>
-                        <input type="number" name="harga" id="harga" class="form-control" value="<?= esc($tiket['HARGA']) ?>" required>
+                        <input type="text" class="form-control" value="Rp <?= number_format($tiket['HARGA'], 0, ',', '.') ?> (Otomatis menyesuaikan rute jika diubah)" readonly style="background-color: #f1f5f9; cursor: not-allowed;">
                     </div>
                 </div>
 

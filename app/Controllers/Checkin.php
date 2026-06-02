@@ -31,18 +31,48 @@ class Checkin extends BaseController
         
         $tiket = $tiketModel->find($idTiket);
         if (!$tiket) {
-            return $this->response->setJSON([]);
+            return $this->response->setJSON(['seats' => [], 'occupiedIds' => []]);
         }
 
         $penerbanganModel = new \App\Models\PenerbanganModel();
         $penerbangan = $penerbanganModel->find($tiket['ID_PENERBANGAN']);
         
         if (!$penerbangan) {
-            return $this->response->setJSON([]);
+            return $this->response->setJSON(['seats' => [], 'occupiedIds' => []]);
         }
 
-        $seats = $kursiModel->getAvailableSeats($penerbangan['ID_PESAWAT'], $tiket['ID_PENERBANGAN']);
-        return $this->response->setJSON($seats);
+        // Get all seats of this aircraft
+        $seats = $kursiModel->where('ID_PESAWAT', $penerbangan['ID_PESAWAT'])
+                            ->orderBy('NO_KURSI2', 'ASC')
+                            ->findAll();
+
+        // Get class colors for this catalog
+        $classColors = [];
+        $pesawatModel = new \App\Models\PesawatModel();
+        $plane = $pesawatModel->find($penerbangan['ID_PESAWAT']);
+        if ($plane && !empty($plane['ID_CATALOG'])) {
+            $kelasModel = new \App\Models\CatalogKelasModel();
+            $classes = $kelasModel->where('ID_CATALOG', $plane['ID_CATALOG'])->findAll();
+            foreach ($classes as $cl) {
+                $classColors[$cl['NAMA_KELAS']] = $cl['WARNA_KELAS'];
+            }
+        }
+
+        // Get occupied seat IDs
+        $occupied = $this->model->db->table('CHECKIN')
+            ->select('ID_KURSI')
+            ->join('TIKET', 'TIKET.ID_TIKET = CHECKIN.ID_TIKET')
+            ->where('TIKET.ID_PENERBANGAN', $tiket['ID_PENERBANGAN'])
+            ->get()
+            ->getResultArray();
+            
+        $occupiedIds = array_map('intval', array_column($occupied, 'ID_KURSI'));
+
+        return $this->response->setJSON([
+            'seats' => $seats,
+            'occupiedIds' => $occupiedIds,
+            'classColors' => $classColors
+        ]);
     }
 
     public function create()

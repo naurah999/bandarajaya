@@ -40,11 +40,22 @@ class Tiket extends BaseController
 
     public function store()
     {
+        // Auto generate Nomor Tiket if empty
+        $nomerTiket = $this->request->getPost('nomer_tiket');
+        if (empty($nomerTiket)) {
+            $nomerTiket = 'TKT-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 4));
+        }
+
+        $idPenerbangan = $this->request->getPost('id_penerbangan');
+        $penerbanganModel = new \App\Models\PenerbanganModel();
+        $penerbangan = $penerbanganModel->find($idPenerbangan);
+        $harga = $penerbangan ? $penerbangan['HARGA'] : 0;
+
         $data = [
             'ID_PENUMPANG'   => $this->request->getPost('id_penumpang'),
-            'ID_PENERBANGAN' => $this->request->getPost('id_penerbangan'),
-            'NOMER_TIKET'    => $this->request->getPost('nomer_tiket'),
-            'HARGA'          => $this->request->getPost('harga'),
+            'ID_PENERBANGAN' => $idPenerbangan,
+            'NOMER_TIKET'    => $nomerTiket,
+            'HARGA'          => $harga,
         ];
 
         if (!$this->model->insert($data)) {
@@ -72,11 +83,16 @@ class Tiket extends BaseController
 
     public function update(int $id)
     {
+        $idPenerbangan = $this->request->getPost('id_penerbangan');
+        $penerbanganModel = new \App\Models\PenerbanganModel();
+        $penerbangan = $penerbanganModel->find($idPenerbangan);
+        $harga = $penerbangan ? $penerbangan['HARGA'] : 0;
+
         $data = [
             'ID_PENUMPANG'   => $this->request->getPost('id_penumpang'),
-            'ID_PENERBANGAN' => $this->request->getPost('id_penerbangan'),
+            'ID_PENERBANGAN' => $idPenerbangan,
             'NOMER_TIKET'    => $this->request->getPost('nomer_tiket'),
-            'HARGA'          => $this->request->getPost('harga'),
+            'HARGA'          => $harga,
         ];
 
         if (!$this->model->update($id, $data)) {

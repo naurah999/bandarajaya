@@ -14,11 +14,13 @@
             <form action="<?= base_url('/penerbangan/store') ?>" method="post">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="id_pesawat">Pesawat & Maskapai</label>
+                        <label for="id_pesawat">Pesawat</label>
                         <select name="id_pesawat" id="id_pesawat" class="form-control" required>
                             <option value="">-- Pilih Pesawat --</option>
                             <?php foreach ($pesawat as $p): ?>
-                                <option value="<?= $p['ID_PESAWAT'] ?>"><?= esc($p['NAMA_MASKAPAI']) ?> - <?= esc($p['TIPE_PESAWAT']) ?></option>
+                                <option value="<?= $p['ID_PESAWAT'] ?>" data-maskapai-kode="<?= esc($p['KODE_MASKAPAI']) ?>">
+                                    <?= esc($p['CATALOG_TIPE'] ?? $p['TIPE_PESAWAT']) ?> (<?= esc($p['KODE_PESAWAT'] ?? '-') ?>)
+                                </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -30,6 +32,17 @@
                                 <option value="<?= $g['ID_GATE'] ?>">Gate <?= esc($g['NOMOR_GATE']) ?> (Terminal <?= esc($g['TERMINAL']) ?>)</option>
                             <?php endforeach; ?>
                         </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="kode_penerbangan">Kode Penerbangan <span style="color:var(--danger)">*</span></label>
+                        <input type="text" name="kode_penerbangan" id="kode_penerbangan" class="form-control" placeholder="Otomatis terisi..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="harga">Harga Tiket Dasar (Rp) <span style="color:var(--danger)">*</span></label>
+                        <input type="number" name="harga" id="harga" class="form-control" placeholder="Contoh: 1500000" required>
                     </div>
                 </div>
 
@@ -64,5 +77,19 @@
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('id_pesawat').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const maskapaiKode = selectedOption.getAttribute('data-maskapai-kode');
+    if (maskapaiKode) {
+        // Generate automatic flight code like GA-101 to GA-999
+        const randomNum = Math.floor(100 + Math.random() * 900);
+        document.getElementById('kode_penerbangan').value = maskapaiKode + '-' + randomNum;
+    } else {
+        document.getElementById('kode_penerbangan').value = '';
+    }
+});
+</script>
 
 <?= $this->endSection() ?>

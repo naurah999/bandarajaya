@@ -30,8 +30,8 @@
                         <option value="">-- Pilih Penerbangan --</option>
                         <?php foreach ($penerbangan as $p): ?>
                             <option value="<?= $p['ID_PENERBANGAN'] ?>">
-                                [<?= date('d M', strtotime($p['TANGGAL_BERANGKAT'])) ?> <?= date('H:i', strtotime($p['WAKTU_BERANGKAT'])) ?>] 
-                                <?= esc($p['NAMA_MASKAPAI']) ?>: <?= esc($p['KOTA_ASAL']) ?> -> <?= esc($p['KOTA_TUJUAN']) ?>
+                                [<?= esc($p['KODE_PENERBANGAN'] ?? '') ?>] <?= date('d M', strtotime($p['TANGGAL_BERANGKAT'])) ?> <?= date('H:i', strtotime($p['WAKTU_BERANGKAT'])) ?> | 
+                                <?= esc($p['KOTA_ASAL']) ?> -> <?= esc($p['KOTA_TUJUAN']) ?> (Rp <?= number_format($p['HARGA'] ?? 0, 0, ',', '.') ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -40,11 +40,11 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="nomer_tiket">Nomor Tiket</label>
-                        <input type="text" name="nomer_tiket" id="nomer_tiket" class="form-control" placeholder="Contoh: TKT-001" required>
+                        <input type="text" name="nomer_tiket" id="nomer_tiket" class="form-control" placeholder="(Dihasilkan Otomatis)" readonly style="background-color: #f1f5f9; cursor: not-allowed;">
                     </div>
                     <div class="form-group">
-                        <label for="harga">Harga Tiket (Rp)</label>
-                        <input type="number" name="harga" id="harga" class="form-control" placeholder="Contoh: 1500000" required>
+                        <label for="harga">Harga Tiket</label>
+                        <input type="text" class="form-control" placeholder="(Otomatis Mengikuti Penerbangan)" readonly style="background-color: #f1f5f9; cursor: not-allowed;">
                     </div>
                 </div>
 

@@ -13,35 +13,34 @@
         <div class="card-body">
             <form action="<?= base_url('/pesawat/store') ?>" method="post">
                 <div class="form-group">
-                    <label for="id_maskapai">Pilih Maskapai</label>
-                    <select name="id_maskapai" id="id_maskapai" class="form-control" required>
-                        <option value="">-- Pilih Maskapai --</option>
-                        <?php foreach ($maskapai as $m): ?>
-                            <option value="<?= $m['ID_MASKAPAI'] ?>"><?= esc($m['NAMA_MASKAPAI']) ?> (<?= esc($m['KODE_MASKAPAI']) ?>)</option>
+                    <label for="id_catalog">Pilih Catalog (Template Pesawat) <span style="color:var(--danger)">*</span></label>
+                    <select name="id_catalog" id="id_catalog" class="form-control" required>
+                        <option value="">-- Pilih Jenis Pesawat --</option>
+                        <?php foreach ($catalogs as $c): ?>
+                            <option value="<?= $c['ID_CATALOG'] ?>"><?= esc($c['TIPE_PESAWAT']) ?> (<?= esc($c['TOTAL_KAPASITAS']) ?> Kursi)</option>
                         <?php endforeach; ?>
                     </select>
+                    <small style="color: var(--text-muted); font-size: 12px; margin-top: 4px; display: block;">Tipe pesawat dan kapasitas otomatis mengikuti catalog yang dipilih.</small>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="kode_pesawat">Kode Pesawat</label>
+                        <label for="kode_pesawat">Kode Pesawat (Registrasi) <span style="color:var(--danger)">*</span></label>
                         <input type="text" name="kode_pesawat" id="kode_pesawat" class="form-control" placeholder="Contoh: PK-ABC" required>
                     </div>
                     <div class="form-group">
-                        <label for="tipe_pesawat">Tipe Pesawat</label>
-                        <input type="text" name="tipe_pesawat" id="tipe_pesawat" class="form-control" placeholder="Contoh: Boeing 737-800" required>
+                        <label for="tahun_produksi">Tahun Produksi <span style="color:var(--danger)">*</span></label>
+                        <input type="number" name="tahun_produksi" id="tahun_produksi" class="form-control" placeholder="Contoh: 2018" required>
                     </div>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="kapasitas">Kapasitas Penumpang</label>
-                        <input type="number" name="kapasitas" id="kapasitas" class="form-control" placeholder="Contoh: 180" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="tahun_produksi">Tahun Produksi</label>
-                        <input type="number" name="tahun_produksi" id="tahun_produksi" class="form-control" placeholder="Contoh: 2018" required>
-                    </div>
+                <div class="form-group">
+                    <label for="status_pesawat">Status</label>
+                    <select name="status_pesawat" id="status_pesawat" class="form-control" required>
+                        <option value="Aktif">Aktif</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Grounded">Grounded</option>
+                    </select>
                 </div>
 
                 <div style="margin-top: 10px; display: flex; justify-content: flex-end;">

@@ -14,22 +14,29 @@ class Maskapai extends BaseController
         $this->model = new MaskapaiModel();
     }
 
+    /**
+     * Halaman profil maskapai. Jika belum ada data, tampilkan form setup.
+     */
     public function index()
     {
+        $maskapai = $this->model->first();
+
+        if (!$maskapai) {
+            // Belum ada data maskapai, tampilkan form setup
+            return view('maskapai/setup', ['title' => 'Setup Maskapai']);
+        }
+
         $data = [
-            'title'    => 'Data Maskapai',
-            'maskapai' => $this->model->findAll(),
+            'title'    => 'Profil Maskapai',
+            'maskapai' => $maskapai,
         ];
-        return view('maskapai/index', $data);
+        return view('maskapai/profile', $data);
     }
 
-    public function create()
-    {
-        $data = ['title' => 'Tambah Maskapai'];
-        return view('maskapai/create', $data);
-    }
-
-    public function store()
+    /**
+     * Proses penyimpanan data maskapai pertama kali (setup awal)
+     */
+    public function setup()
     {
         $data = [
             'NAMA_MASKAPAI' => $this->request->getPost('nama_maskapai'),
@@ -41,23 +48,32 @@ class Maskapai extends BaseController
         if (!$this->model->insert($data)) {
             return redirect()->back()->withInput()->with('error', implode(' ', $this->model->errors()));
         }
-        return redirect()->to('/maskapai')->with('success', 'Data maskapai berhasil ditambahkan');
+        return redirect()->to('/maskapai')->with('success', 'Profil maskapai berhasil disimpan! Selamat datang.');
     }
 
-    public function edit(int $id)
+    /**
+     * Form edit profil maskapai
+     */
+    public function edit()
     {
-        $maskapai = $this->model->find($id);
-        if (!$maskapai) return redirect()->to('/maskapai')->with('error', 'Data tidak ditemukan.');
+        $maskapai = $this->model->first();
+        if (!$maskapai) return redirect()->to('/maskapai')->with('error', 'Data maskapai belum tersedia.');
 
         $data = [
-            'title'    => 'Edit Maskapai',
+            'title'    => 'Edit Profil Maskapai',
             'maskapai' => $maskapai,
         ];
         return view('maskapai/edit', $data);
     }
 
-    public function update(int $id)
+    /**
+     * Proses update profil maskapai
+     */
+    public function update()
     {
+        $maskapai = $this->model->first();
+        if (!$maskapai) return redirect()->to('/maskapai')->with('error', 'Data maskapai belum tersedia.');
+
         $data = [
             'NAMA_MASKAPAI' => $this->request->getPost('nama_maskapai'),
             'KODE_MASKAPAI' => $this->request->getPost('kode_maskapai'),
@@ -65,19 +81,9 @@ class Maskapai extends BaseController
             'NO_KONTAK'     => $this->request->getPost('no_kontak'),
         ];
 
-        if (!$this->model->update($id, $data)) {
+        if (!$this->model->update($maskapai['ID_MASKAPAI'], $data)) {
             return redirect()->back()->withInput()->with('error', implode(' ', $this->model->errors()));
         }
-        return redirect()->to('/maskapai')->with('success', 'Data maskapai berhasil diubah');
-    }
-
-    public function delete(int $id)
-    {
-        try {
-            $this->model->delete($id);
-            return redirect()->to('/maskapai')->with('success', 'Data maskapai berhasil dihapus');
-        } catch (\Exception $e) {
-            return redirect()->to('/maskapai')->with('error', 'Data gagal dihapus karena masih terkait dengan data lain.');
-        }
+        return redirect()->to('/maskapai')->with('success', 'Profil maskapai berhasil diperbarui');
     }
 }

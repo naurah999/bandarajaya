@@ -601,17 +601,28 @@
             <i class="fas fa-plane"></i>
         </div>
         <div class="brand-text">
-            <h1>Bandara Raya</h1>
-            <span>Airport Management</span>
+            <?php 
+                $maskapaiDB = new \App\Models\MaskapaiModel();
+                $m = $maskapaiDB->first();
+            ?>
+            <h1><?= $m ? esc($m['NAMA_MASKAPAI']) : 'Airline System' ?></h1>
+            <span>Management Platform</span>
         </div>
     </div>
 
     <nav class="sidebar-nav">
 
         <div class="nav-section">
-            <div class="nav-section-title">Master Data</div>
+            <div class="nav-section-title">Profil</div>
             <a href="<?= base_url('/maskapai') ?>" class="nav-item <?= (str_starts_with(uri_string(), 'maskapai')) ? 'active' : '' ?>">
-                <i class="fas fa-building"></i> Maskapai
+                <i class="fas fa-id-badge"></i> Profil Maskapai
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Master Data</div>
+            <a href="<?= base_url('/catalog-pesawat') ?>" class="nav-item <?= (str_starts_with(uri_string(), 'catalog-pesawat')) ? 'active' : '' ?>">
+                <i class="fas fa-book"></i> Catalog Pesawat
             </a>
             <a href="<?= base_url('/pesawat') ?>" class="nav-item <?= (str_starts_with(uri_string(), 'pesawat')) ? 'active' : '' ?>">
                 <i class="fas fa-plane-departure"></i> Pesawat

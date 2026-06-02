@@ -20,8 +20,9 @@ class KursiModel extends Model
 
     public function getWithPesawat()
     {
-        return $this->select('KURSI.*, PESAWAT.KODE_PESAWAT, PESAWAT.TIPE_PESAWAT')
+        return $this->select('KURSI.*, PESAWAT.KODE_PESAWAT, PESAWAT.TIPE_PESAWAT, MASKAPAI.NAMA_MASKAPAI')
                     ->join('PESAWAT', 'PESAWAT.ID_PESAWAT = KURSI.ID_PESAWAT', 'left')
+                    ->join('MASKAPAI', 'MASKAPAI.ID_MASKAPAI = PESAWAT.ID_MASKAPAI', 'left')
                     ->findAll();
     }
 

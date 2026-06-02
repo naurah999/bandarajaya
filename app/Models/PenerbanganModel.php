@@ -10,12 +10,14 @@ class PenerbanganModel extends Model
     protected $primaryKey       = 'ID_PENERBANGAN';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $allowedFields    = ['ID_PESAWAT', 'ID_GATE', 'TANGGAL_BERANGKAT', 'WAKTU_BERANGKAT', 'KOTA_ASAL', 'KOTA_TUJUAN'];
+    protected $allowedFields    = ['ID_PESAWAT', 'ID_GATE', 'KODE_PENERBANGAN', 'TANGGAL_BERANGKAT', 'WAKTU_BERANGKAT', 'KOTA_ASAL', 'KOTA_TUJUAN', 'HARGA'];
 
     protected $validationRules = [
         'ID_PESAWAT'        => 'required|numeric',
+        'KODE_PENERBANGAN'  => 'required|max_length[20]',
         'KOTA_ASAL'         => 'required|max_length[100]',
         'KOTA_TUJUAN'       => 'required|max_length[100]',
+        'HARGA'             => 'required|numeric',
         'TANGGAL_BERANGKAT' => 'required',
         'WAKTU_BERANGKAT'   => 'required',
     ];

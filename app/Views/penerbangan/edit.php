@@ -14,11 +14,11 @@
             <form action="<?= base_url('/penerbangan/update/' . $penerbangan['ID_PENERBANGAN']) ?>" method="post">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="id_pesawat">Pesawat & Maskapai</label>
+                        <label for="id_pesawat">Pesawat</label>
                         <select name="id_pesawat" id="id_pesawat" class="form-control" required>
                             <?php foreach ($pesawat as $p): ?>
-                                <option value="<?= $p['ID_PESAWAT'] ?>" <?= $p['ID_PESAWAT'] == $penerbangan['ID_PESAWAT'] ? 'selected' : '' ?>>
-                                    <?= esc($p['NAMA_MASKAPAI']) ?> - <?= esc($p['TIPE_PESAWAT']) ?>
+                                <option value="<?= $p['ID_PESAWAT'] ?>" data-maskapai-kode="<?= esc($p['KODE_MASKAPAI']) ?>" <?= $p['ID_PESAWAT'] == $penerbangan['ID_PESAWAT'] ? 'selected' : '' ?>>
+                                    <?= esc($p['CATALOG_TIPE'] ?? $p['TIPE_PESAWAT']) ?> (<?= esc($p['KODE_PESAWAT'] ?? '-') ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -32,6 +32,17 @@
                                 </option>
                             <?php endforeach; ?>
                         </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="kode_penerbangan">Kode Penerbangan <span style="color:var(--danger)">*</span></label>
+                        <input type="text" name="kode_penerbangan" id="kode_penerbangan" class="form-control" value="<?= esc($penerbangan['KODE_PENERBANGAN'] ?? '') ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="harga">Harga Tiket Dasar (Rp) <span style="color:var(--danger)">*</span></label>
+                        <input type="number" name="harga" id="harga" class="form-control" value="<?= esc($penerbangan['HARGA'] ?? '') ?>" required>
                     </div>
                 </div>
 
@@ -66,5 +77,24 @@
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('id_pesawat').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const maskapaiKode = selectedOption.getAttribute('data-maskapai-kode');
+    const initialPesawatId = "<?= $penerbangan['ID_PESAWAT'] ?>";
+    const initialFlightCode = "<?= esc($penerbangan['KODE_PENERBANGAN']) ?>";
+    
+    if (this.value == initialPesawatId) {
+        document.getElementById('kode_penerbangan').value = initialFlightCode;
+    } else if (maskapaiKode) {
+        // Generate automatic flight code like GA-101 to GA-999
+        const randomNum = Math.floor(100 + Math.random() * 900);
+        document.getElementById('kode_penerbangan').value = maskapaiKode + '-' + randomNum;
+    } else {
+        document.getElementById('kode_penerbangan').value = '';
+    }
+});
+</script>
 
 <?= $this->endSection() ?>

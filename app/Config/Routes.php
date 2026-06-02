@@ -8,14 +8,22 @@ use CodeIgniter\Router\RouteCollection;
 
 // Default Route (Maskapai)
 $routes->get('/', 'Maskapai::index');
+$routes->get('/migrate', 'MigrateDb::index');
 
 // Maskapai
 $routes->get('/maskapai', 'Maskapai::index');
-$routes->get('/maskapai/create', 'Maskapai::create');
-$routes->post('/maskapai/store', 'Maskapai::store');
-$routes->get('/maskapai/edit/(:num)', 'Maskapai::edit/$1');
-$routes->post('/maskapai/update/(:num)', 'Maskapai::update/$1');
-$routes->post('/maskapai/delete/(:num)', 'Maskapai::delete/$1');
+$routes->get('/maskapai/edit', 'Maskapai::edit');
+$routes->post('/maskapai/update', 'Maskapai::update');
+$routes->post('/maskapai/setup', 'Maskapai::setup');
+
+// Catalog Pesawat
+$routes->get('/catalog-pesawat', 'CatalogPesawat::index');
+$routes->get('/catalog-pesawat/create', 'CatalogPesawat::create');
+$routes->post('/catalog-pesawat/store', 'CatalogPesawat::store');
+$routes->get('/catalog-pesawat/show/(:num)', 'CatalogPesawat::show/$1');
+$routes->get('/catalog-pesawat/edit/(:num)', 'CatalogPesawat::edit/$1');
+$routes->post('/catalog-pesawat/update/(:num)', 'CatalogPesawat::update/$1');
+$routes->post('/catalog-pesawat/delete/(:num)', 'CatalogPesawat::delete/$1');
 
 // Pesawat
 $routes->get('/pesawat', 'Pesawat::index');
@@ -72,6 +80,8 @@ $routes->post('/kursi/store', 'Kursi::store');
 $routes->get('/kursi/edit/(:num)', 'Kursi::edit/$1');
 $routes->post('/kursi/update/(:num)', 'Kursi::update/$1');
 $routes->post('/kursi/delete/(:num)', 'Kursi::delete/$1');
+$routes->get('/kursi/get-plane-seats/(:num)', 'Kursi::getPlaneSeats/$1');
+$routes->post('/kursi/bulk-assign-class', 'Kursi::bulkAssignClass');
 
 // Bagasi
 $routes->get('/bagasi', 'Bagasi::index');

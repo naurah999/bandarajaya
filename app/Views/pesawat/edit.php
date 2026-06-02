@@ -13,36 +13,35 @@
         <div class="card-body">
             <form action="<?= base_url('/pesawat/update/' . $pesawat['ID_PESAWAT']) ?>" method="post">
                 <div class="form-group">
-                    <label for="id_maskapai">Pilih Maskapai</label>
-                    <select name="id_maskapai" id="id_maskapai" class="form-control" required>
-                        <?php foreach ($maskapai as $m): ?>
-                            <option value="<?= $m['ID_MASKAPAI'] ?>" <?= $m['ID_MASKAPAI'] == $pesawat['ID_MASKAPAI'] ? 'selected' : '' ?>>
-                                <?= esc($m['NAMA_MASKAPAI']) ?> (<?= esc($m['KODE_MASKAPAI']) ?>)
+                    <label for="id_catalog">Pilih Catalog (Template Pesawat) <span style="color:var(--danger)">*</span></label>
+                    <select name="id_catalog" id="id_catalog" class="form-control" required>
+                        <?php foreach ($catalogs as $c): ?>
+                            <option value="<?= $c['ID_CATALOG'] ?>" <?= $c['ID_CATALOG'] == $pesawat['ID_CATALOG'] ? 'selected' : '' ?>>
+                                <?= esc($c['TIPE_PESAWAT']) ?> (<?= esc($c['TOTAL_KAPASITAS']) ?> Kursi)
                             </option>
                         <?php endforeach; ?>
                     </select>
+                    <small style="color: var(--text-muted); font-size: 12px; margin-top: 4px; display: block;">Perhatian: Mengubah catalog <strong style="color:var(--danger);">TIDAK</strong> akan mengubah konfigurasi kursi yang sudah di-generate sebelumnya. Gunakan fitur "Regenerate Kursi" (jika ada) setelah update.</small>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="kode_pesawat">Kode Pesawat</label>
+                        <label for="kode_pesawat">Kode Pesawat (Registrasi) <span style="color:var(--danger)">*</span></label>
                         <input type="text" name="kode_pesawat" id="kode_pesawat" class="form-control" value="<?= esc($pesawat['KODE_PESAWAT']) ?>" required>
                     </div>
                     <div class="form-group">
-                        <label for="tipe_pesawat">Tipe Pesawat</label>
-                        <input type="text" name="tipe_pesawat" id="tipe_pesawat" class="form-control" value="<?= esc($pesawat['TIPE_PESAWAT']) ?>" required>
+                        <label for="tahun_produksi">Tahun Produksi <span style="color:var(--danger)">*</span></label>
+                        <input type="number" name="tahun_produksi" id="tahun_produksi" class="form-control" value="<?= esc($pesawat['TAHUN_PRODUKSI']) ?>" required>
                     </div>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="kapasitas">Kapasitas Penumpang</label>
-                        <input type="number" name="kapasitas" id="kapasitas" class="form-control" value="<?= esc($pesawat['KAPASITAS']) ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="tahun_produksi">Tahun Produksi</label>
-                        <input type="number" name="tahun_produksi" id="tahun_produksi" class="form-control" value="<?= esc($pesawat['TAHUN_PRODUKSI']) ?>" required>
-                    </div>
+                <div class="form-group">
+                    <label for="status_pesawat">Status</label>
+                    <select name="status_pesawat" id="status_pesawat" class="form-control" required>
+                        <option value="Aktif" <?= ($pesawat['STATUS_PESAWAT'] ?? 'Aktif') == 'Aktif' ? 'selected' : '' ?>>Aktif</option>
+                        <option value="Maintenance" <?= ($pesawat['STATUS_PESAWAT'] ?? '') == 'Maintenance' ? 'selected' : '' ?>>Maintenance</option>
+                        <option value="Grounded" <?= ($pesawat['STATUS_PESAWAT'] ?? '') == 'Grounded' ? 'selected' : '' ?>>Grounded</option>
+                    </select>
                 </div>
 
                 <div style="margin-top: 10px; display: flex; justify-content: flex-end;">

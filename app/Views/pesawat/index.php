@@ -15,9 +15,8 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Maskapai</th>
-                        <th>Kode</th>
-                        <th>Pesawat</th>
+                        <th>Kode Pesawat</th>
+                        <th>Tipe / Catalog</th>
                         <th>Kapasitas</th>
                         <th>Tahun</th>
                         <th>Status</th>
@@ -36,9 +35,11 @@
                         <?php foreach ($pesawat as $p): ?>
                             <tr>
                                 <td><?= esc($p['ID_PESAWAT']) ?></td>
-                                <td style="font-weight: 600; color: var(--text-primary);"><?= esc($p['NAMA_MASKAPAI']) ?></td>
-                                <td><span class="badge badge-info"><?= esc($p['KODE_PESAWAT'] ?? '-') ?></span></td>
-                                <td style="font-weight: 500;"><?= esc($p['TIPE_PESAWAT']) ?></td>
+                                <td style="font-weight: 600; color: var(--text-primary);"><span class="badge badge-info"><?= esc($p['KODE_PESAWAT'] ?? '-') ?></span></td>
+                                <td>
+                                    <div style="font-weight: 500;"><?= esc($p['TIPE_PESAWAT']) ?></div>
+                                    <div style="font-size: 11px; color: var(--text-muted);"><?= esc($p['KATEGORI']) ?></div>
+                                </td>
                                 <td><?= esc($p['KAPASITAS']) ?> Kursi</td>
                                 <td><?= esc($p['TAHUN_PRODUKSI']) ?></td>
                                 <td>
