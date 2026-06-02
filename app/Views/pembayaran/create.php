@@ -23,7 +23,15 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Pilih Tiket yang Akan Dibayar</label>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <label style="margin-bottom: 0;">Pilih Tiket yang Akan Dibayar</label>
+                        <?php if (!empty($tikets)): ?>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <input type="checkbox" id="selectAllTiket" onchange="toggleAllTikets(this)">
+                                <label for="selectAllTiket" style="margin-bottom: 0; font-size: 13px; cursor: pointer; color: var(--accent-primary); font-weight: 600;">Pilih Semua</label>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                     <div style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px;">
                         <?php if (empty($tikets)): ?>
                             <p style="color: var(--text-muted); font-style: italic;">Tidak ada tiket yang perlu dibayar.</p>
@@ -78,11 +86,23 @@
         });
         inputJumlah.value = count;
         inputTotal.value = total;
+        
+        const selectAllCheckbox = document.getElementById('selectAllTiket');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = count === checkboxes.length && checkboxes.length > 0;
+        }
     }
 
     checkboxes.forEach(cb => {
         cb.addEventListener('change', calculate);
     });
+
+    function toggleAllTikets(source) {
+        checkboxes.forEach(cb => {
+            cb.checked = source.checked;
+        });
+        calculate();
+    }
 </script>
 
 <?= $this->endSection() ?>

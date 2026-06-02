@@ -47,14 +47,13 @@ class Tiket extends BaseController
         }
 
         $idPenerbangan = $this->request->getPost('id_penerbangan');
-        $penerbanganModel = new \App\Models\PenerbanganModel();
-        $penerbangan = $penerbanganModel->find($idPenerbangan);
-        $harga = $penerbangan ? $penerbangan['HARGA'] : 0;
+        $harga = $this->request->getPost('harga') ?? 0;
 
         $data = [
             'ID_PENUMPANG'   => $this->request->getPost('id_penumpang'),
             'ID_PENERBANGAN' => $idPenerbangan,
             'NOMER_TIKET'    => $nomerTiket,
+            'KELAS_TIKET'    => $this->request->getPost('kelas_tiket'),
             'HARGA'          => $harga,
         ];
 
@@ -84,14 +83,13 @@ class Tiket extends BaseController
     public function update(int $id)
     {
         $idPenerbangan = $this->request->getPost('id_penerbangan');
-        $penerbanganModel = new \App\Models\PenerbanganModel();
-        $penerbangan = $penerbanganModel->find($idPenerbangan);
-        $harga = $penerbangan ? $penerbangan['HARGA'] : 0;
+        $harga = $this->request->getPost('harga') ?? 0;
 
         $data = [
             'ID_PENUMPANG'   => $this->request->getPost('id_penumpang'),
             'ID_PENERBANGAN' => $idPenerbangan,
             'NOMER_TIKET'    => $this->request->getPost('nomer_tiket'),
+            'KELAS_TIKET'    => $this->request->getPost('kelas_tiket'),
             'HARGA'          => $harga,
         ];
 
@@ -109,5 +107,24 @@ class Tiket extends BaseController
         } catch (\Exception $e) {
             return redirect()->to('/tiket')->with('error', 'Gagal menghapus! Tiket ini sudah masuk proses check-in atau pembayaran.');
         }
+    }
+
+    public function getClasses(int $idPenerbangan)
+    {
+        $db = \Config\Database::connect();
+        $flight = $db->table('PENERBANGAN')
+            ->join('PESAWAT', 'PESAWAT.ID_PESAWAT = PENERBANGAN.ID_PESAWAT', 'left')
+            ->where('ID_PENERBANGAN', $idPenerbangan)
+            ->get()->getRowArray();
+            
+        if (!$flight || empty($flight['ID_CATALOG'])) {
+            return $this->response->setJSON([]);
+        }
+        
+        $classes = $db->table('CATALOG_KELAS')
+            ->where('ID_CATALOG', $flight['ID_CATALOG'])
+            ->get()->getResultArray();
+            
+        return $this->response->setJSON($classes);
     }
 }

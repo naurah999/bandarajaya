@@ -51,6 +51,9 @@
                                 </td>
                                 <td>
                                     <div class="action-btns">
+                                        <form action="<?= base_url('/pesawat/regenerate-seats/' . $p['ID_PESAWAT']) ?>" method="post" style="display:inline;" onsubmit="return confirm('Peringatan: Membuat ulang kursi akan MENGHAPUS semua kursi yang sudah ada untuk pesawat ini. Lanjutkan?')">
+                                            <button type="submit" class="btn btn-info btn-sm" title="Generate ulang kursi sesuai kapasitas terbaru"><i class="fas fa-sync-alt"></i></button>
+                                        </form>
                                         <a href="<?= base_url('/pesawat/edit/' . $p['ID_PESAWAT']) ?>" class="btn btn-warning btn-sm">
                                             <i class="fas fa-edit"></i>
                                         </a>

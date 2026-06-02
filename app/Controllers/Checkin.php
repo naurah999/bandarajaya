@@ -71,7 +71,8 @@ class Checkin extends BaseController
         return $this->response->setJSON([
             'seats' => $seats,
             'occupiedIds' => $occupiedIds,
-            'classColors' => $classColors
+            'classColors' => $classColors,
+            'ticketClass' => $tiket['KELAS_TIKET'] ?? ''
         ]);
     }
 

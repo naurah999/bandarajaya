@@ -14,31 +14,29 @@
             <form action="<?= base_url('/detail-pembayaran/update/' . $detail['ID_MEMBAYAR']) ?>" method="post">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="id_pembayaran">ID Transaksi Induk</label>
-                        <select name="id_pembayaran" id="id_pembayaran" class="form-control" required>
-                            <?php foreach ($pembayaran as $p): ?>
-                                <option value="<?= $p['ID_PEMBAYARAN'] ?>" <?= $p['ID_PEMBAYARAN'] == $detail['ID_PEMBAYARAN'] ? 'selected' : '' ?>>
-                                    TRX-<?= (string)$p['ID_PEMBAYARAN'] ?> (<?= (string)$p['TIPE_PEMBAYARAN'] ?> - Rp <?= number_format((float)$p['TOTAL_HARGA'],0,',','.') ?>)
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <label>ID Transaksi Induk</label>
+                        <input type="text" class="form-control" value="TRX-<?= (string)$detail['ID_PEMBAYARAN'] ?>" readonly>
+                        <input type="hidden" name="id_pembayaran" value="<?= $detail['ID_PEMBAYARAN'] ?>">
                     </div>
                     <div class="form-group">
-                        <label for="id_tiket">Pilih Tiket</label>
-                        <select name="id_tiket" id="id_tiket" class="form-control" required>
-                            <?php foreach ($tikets as $t): ?>
-                                <option value="<?= $t['ID_TIKET'] ?>" <?= $t['ID_TIKET'] == $detail['ID_TIKET'] ? 'selected' : '' ?>>
-                                    <?= esc((string)$t['NOMER_TIKET']) ?> - <?= esc((string)$t['NAMA_PENUMPANG']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <label>Tiket Terkait</label>
+                        <?php 
+                        $tiketTerkait = '';
+                        foreach($tikets as $t) {
+                            if($t['ID_TIKET'] == $detail['ID_TIKET']) {
+                                $tiketTerkait = $t['NOMER_TIKET'] . ' - ' . $t['NAMA_PENUMPANG'];
+                            }
+                        }
+                        ?>
+                        <input type="text" class="form-control" value="<?= esc($tiketTerkait) ?>" readonly>
+                        <input type="hidden" name="id_tiket" value="<?= $detail['ID_TIKET'] ?>">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="jumlah_bayar">Jumlah yang Dibayarkan (Rp)</label>
-                        <input type="number" name="jumlah_bayar" id="jumlah_bayar" class="form-control" value="<?= esc((string)$detail['JUMLAH_BAYAR']) ?>" required>
+                        <input type="number" name="jumlah_bayar" id="jumlah_bayar" class="form-control" value="<?= esc((string)$detail['JUMLAH_BAYAR']) ?>" readonly>
                     </div>
                     <div class="form-group">
                         <label for="status_pembayaran">Status</label>

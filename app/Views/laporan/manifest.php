@@ -18,12 +18,45 @@
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-search"></i> Lihat Manifest
                 </button>
+                <?php if ($selectedFlight): ?>
+                    <button type="button" class="btn btn-info no-print" onclick="window.print()" style="margin-left:10px;">
+                        <i class="fas fa-print"></i> Cetak PDF
+                    </button>
+                <?php endif; ?>
             </form>
         </div>
     </div>
     <div class="card-body">
         <?php if ($selectedFlight): ?>
-            <div style="background: var(--bg-secondary); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid var(--accent-primary);">
+            
+            <div class="print-header">
+                <div class="print-header-top">
+                    <div class="print-company">
+                        <h2><?= esc($maskapai['NAMA_MASKAPAI']) ?></h2>
+                    </div>
+                    <div class="print-title">
+                        <span style="font-weight: 700; color: #64748b; letter-spacing: 1px; font-size: 14px;">PASSENGER MANIFEST</span>
+                    </div>
+                </div>
+                
+                <div class="print-header-details">
+                    <div class="print-address">
+                        <strong>Kantor Pusat <?= esc($maskapai['NAMA_MASKAPAI']) ?></strong><br>
+                        Kantor Pusat Maskapai<br>
+                        <?= esc($maskapai['NEGARA_ASAL']) ?><br>
+                        Tlp: <?= esc($maskapai['NO_KONTAK']) ?><br>
+                        Kode: <?= esc($maskapai['KODE_MASKAPAI']) ?>
+                    </div>
+                    <div class="print-period">
+                        <strong>Detail Penerbangan</strong><br>
+                        <?= esc($selectedFlight['TIPE_PESAWAT']) ?> (<?= esc($selectedFlight['NAMA_MASKAPAI']) ?>)<br>
+                        <?= esc($selectedFlight['KOTA_ASAL']) ?> &rarr; <?= esc($selectedFlight['KOTA_TUJUAN']) ?><br>
+                        <?= date('d M Y', strtotime($selectedFlight['TANGGAL_BERANGKAT'])) ?> | <?= $selectedFlight['WAKTU_BERANGKAT'] ?>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: var(--bg-secondary); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid var(--accent-primary);" class="no-print">
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                     <div>
                         <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">Pesawat / Maskapai</p>
@@ -88,6 +121,42 @@
             </div>
         <?php endif; ?>
     </div>
+    </div>
 </div>
+
+<style>
+    .print-header { display: none; }
+    
+    @media print {
+        @page { size: A4; margin: 10mm; }
+        body { background: white !important; font-family: 'Arial', sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .sidebar, .header, .navbar, .no-print, .card-header, .header-actions, .alert { display: none !important; }
+        .main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+        .card { border: none !important; box-shadow: none !important; }
+        .card-body { padding: 0 !important; }
+        
+        .print-header { 
+            display: block; 
+            margin-bottom: 30px; 
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 8px;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        .print-header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; }
+        .print-company h2 { margin: 0; font-size: 24px; color: #0f172a; font-weight: 800; }
+        
+        .print-header-details { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 12px; color: #334155; line-height: 1.6; }
+        .print-period { text-align: right; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
+        th { border-bottom: 2px solid #0f172a; border-top: none; padding: 12px 8px; text-align: left; color: #0f172a; font-weight: 700; text-transform: uppercase; font-size: 11px; }
+        td { border-bottom: 1px solid #e2e8f0; padding: 10px 8px; color: #334155; }
+        .badge { background: none !important; color: #0f172a !important; padding: 0; border: none; font-weight: normal; }
+        small { color: #64748b !important; }
+    }
+</style>
 
 <?= $this->endSection() ?>

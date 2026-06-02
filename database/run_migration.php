@@ -3,7 +3,7 @@ $servername = "127.0.0.1";
 $username = "root";
 $password = "";
 $dbname = "bandarajaya";
-$port = 3307;
+$port = 3306;
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname, $port);
@@ -13,7 +13,7 @@ if ($conn->connect_error) {
   die("Connection failed: " . $conn->connect_error);
 }
 
-$sql = file_get_contents(__DIR__ . '/migration_penerbangan.sql');
+$sql = file_get_contents(__DIR__ . '/migration_catalog.sql');
 
 if ($conn->multi_query($sql) === TRUE) {
   echo "Migration executed successfully\n";

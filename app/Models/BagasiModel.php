@@ -20,10 +20,11 @@ class BagasiModel extends Model
 
     public function getWithRelations()
     {
-        return $this->select('BAGASI.*, CHECKIN.WAKTU_CHECKIN, TIKET.NOMER_TIKET, PENUMPANG.NAMA_PENUMPANG')
+        return $this->select('BAGASI.*, CHECKIN.WAKTU_CHECKIN, TIKET.NOMER_TIKET, PENUMPANG.NAMA_PENUMPANG, PENERBANGAN.KODE_PENERBANGAN')
                     ->join('CHECKIN', 'CHECKIN.ID_CHECKIN = BAGASI.ID_CHECKIN', 'left')
                     ->join('TIKET', 'TIKET.ID_TIKET = CHECKIN.ID_TIKET', 'left')
                     ->join('PENUMPANG', 'PENUMPANG.ID_PENUMPANG = TIKET.ID_PENUMPANG', 'left')
+                    ->join('PENERBANGAN', 'PENERBANGAN.ID_PENERBANGAN = TIKET.ID_PENERBANGAN', 'left')
                     ->findAll();
     }
 }

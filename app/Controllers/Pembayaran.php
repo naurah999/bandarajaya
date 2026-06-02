@@ -100,7 +100,38 @@ class Pembayaran extends BaseController
 
     public function delete($id)
     {
-        $this->model->delete($id);
-        return redirect()->to('/pembayaran')->with('success', 'Data pembayaran berhasil dihapus');
+        $db = \Config\Database::connect();
+        
+        try {
+            $db->transStart();
+            
+            $detailModel = new \App\Models\DetailPembayaranModel();
+            $tiketModel = new \App\Models\TiketModel();
+            
+            $details = $detailModel->where('ID_PEMBAYARAN', $id)->findAll();
+            
+            foreach ($details as $detail) {
+                // Set ID_MEMBAYAR di TIKET menjadi null kembali (jadi belum dibayar)
+                $tiketModel->where('ID_MEMBAYAR', $detail['ID_MEMBAYAR'])
+                           ->set(['ID_MEMBAYAR' => null])
+                           ->update();
+            }
+            
+            // Hapus detail pembayaran
+            $detailModel->where('ID_PEMBAYARAN', $id)->delete();
+            
+            // Hapus record pembayaran utama
+            $this->model->delete($id);
+            
+            $db->transComplete();
+            
+            if ($db->transStatus() === false) {
+                return redirect()->to('/pembayaran')->with('error', 'Gagal menghapus data pembayaran.');
+            }
+            
+            return redirect()->to('/pembayaran')->with('success', 'Data pembayaran berhasil dihapus. Status tiket kembali menjadi belum dibayar.');
+        } catch (\Exception $e) {
+            return redirect()->to('/pembayaran')->with('error', 'Terjadi kesalahan saat menghapus data.');
+        }
     }
 }

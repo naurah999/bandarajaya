@@ -32,6 +32,7 @@ $routes->post('/pesawat/store', 'Pesawat::store');
 $routes->get('/pesawat/edit/(:num)', 'Pesawat::edit/$1');
 $routes->post('/pesawat/update/(:num)', 'Pesawat::update/$1');
 $routes->post('/pesawat/delete/(:num)', 'Pesawat::delete/$1');
+$routes->post('/pesawat/regenerate-seats/(:num)', 'Pesawat::regenerateSeats/$1');
 
 // Gate
 $routes->get('/gate', 'Gate::index');
@@ -64,6 +65,7 @@ $routes->post('/tiket/store', 'Tiket::store');
 $routes->get('/tiket/edit/(:num)', 'Tiket::edit/$1');
 $routes->post('/tiket/update/(:num)', 'Tiket::update/$1');
 $routes->post('/tiket/delete/(:num)', 'Tiket::delete/$1');
+$routes->get('/tiket/get-classes/(:num)', 'Tiket::getClasses/$1');
 
 $routes->get('/checkin/get-available-seats/(:num)', 'Checkin::getAvailableSeats/$1');
 $routes->get('/checkin', 'Checkin::index');
@@ -91,6 +93,7 @@ $routes->get('/bagasi/edit/(:num)', 'Bagasi::edit/$1');
 $routes->post('/bagasi/update/(:num)', 'Bagasi::update/$1');
 $routes->post('/bagasi/delete/(:num)', 'Bagasi::delete/$1');
 
+$routes->post('/bagasi/bulk-update-status', 'Bagasi::bulkUpdateStatus');
 // Boarding Pass
 $routes->get('/boardingpass', 'BoardingPass::index');
 $routes->get('/boardingpass/create', 'BoardingPass::create');

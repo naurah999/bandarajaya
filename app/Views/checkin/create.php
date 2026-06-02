@@ -128,6 +128,14 @@
         cursor: not-allowed;
     }
 
+    .seat-locked {
+        background: #fef2f2;
+        border-color: #fca5a5;
+        color: #d4a0a0;
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
     .seat.selected {
         background: var(--accent-primary) !important;
         border-color: var(--accent-primary) !important;
@@ -153,7 +161,7 @@
                         <option value="">-- Pilih Tiket --</option>
                         <?php foreach ($tikets as $t): ?>
                             <option value="<?= $t['ID_TIKET'] ?>">
-                                <?= esc($t['NOMER_TIKET']) ?> - <?= esc($t['NAMA_PENUMPANG']) ?> (<?= esc($t['KOTA_ASAL']) ?> -> <?= esc($t['KOTA_TUJUAN']) ?>)
+                                <?= esc($t['NOMER_TIKET']) ?> - <?= esc($t['NAMA_PENUMPANG']) ?> | Kelas: <?= esc($t['KELAS_TIKET'] ?? '-') ?> (<?= esc($t['KOTA_ASAL']) ?> -> <?= esc($t['KOTA_TUJUAN']) ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -230,6 +238,7 @@
                 const seats = data.seats || [];
                 const occupiedIds = data.occupiedIds || [];
                 const classColors = data.classColors || {};
+                const ticketClass = data.ticketClass || '';
 
                 // --- BUILD DYNAMIC LEGEND ---
                 const legendContainer = document.getElementById('dynamicLegendContainer');
@@ -248,9 +257,17 @@
                         <span>Terisi (Check-in)</span>
                     </div>
                     <div class="legend-item">
+                        <div class="legend-color" style="background:#fef2f2; border-color:#fca5a5; opacity:0.5;"></div>
+                        <span>Kelas Lain (Terkunci)</span>
+                    </div>
+                    <div class="legend-item">
                         <div class="legend-color" style="background:var(--accent-primary); border-color:var(--accent-primary);"></div>
                         <span>Pilihan Anda</span>
                     </div>`;
+
+                if (ticketClass) {
+                    legendContainer.innerHTML += `<div style="width:100%;text-align:center;font-size:12px;margin-top:6px;color:var(--info);font-weight:600;"><i class="fas fa-info-circle"></i> Tiket kelas: ${ticketClass} — hanya kursi kelas ini yang dapat dipilih.</div>`;
+                }
 
                 // --- INJECT DYNAMIC CSS FOR SEAT CLASSES ---
                 let dynamicCSS = '';
@@ -286,7 +303,8 @@
                 // Populate regular dropdown option as fallback
                 seats.forEach(seat => {
                     const isOccupied = occupiedIds.includes(parseInt(seat.ID_KURSI));
-                    if (!isOccupied) {
+                    const classMatch = !ticketClass || seat.KELAS_PENERBANAN === ticketClass;
+                    if (!isOccupied && classMatch) {
                         seatSelect.innerHTML += `<option value="${seat.ID_KURSI}">${seat.NO_KURSI2} (${seat.KELAS_PENERBANAN})</option>`;
                     }
                 });
@@ -362,7 +380,7 @@
                         leftGroup.className = 'col-group';
                         leftCols.forEach(c => {
                             const seat = seatingGrid[r] ? seatingGrid[r][c] : null;
-                            const seatEl = createSeatElement(seat, c, occupiedIds, classColors);
+                            const seatEl = createSeatElement(seat, c, occupiedIds, classColors, ticketClass);
                             leftGroup.appendChild(seatEl);
                         });
                         rowDiv.appendChild(leftGroup);
@@ -378,7 +396,7 @@
                         rightGroup.className = 'col-group';
                         rightCols.forEach(c => {
                             const seat = seatingGrid[r] ? seatingGrid[r][c] : null;
-                            const seatEl = createSeatElement(seat, c, occupiedIds, classColors);
+                            const seatEl = createSeatElement(seat, c, occupiedIds, classColors, ticketClass);
                             rightGroup.appendChild(seatEl);
                         });
                         rowDiv.appendChild(rightGroup);
@@ -406,7 +424,7 @@
             });
     });
 
-    function createSeatElement(seat, colLetter, occupiedIds, classColors) {
+    function createSeatElement(seat, colLetter, occupiedIds, classColors, ticketClass) {
         if (!seat) {
             const spacer = document.createElement('div');
             spacer.className = 'seat-spacer';
@@ -414,6 +432,7 @@
         }
 
         const isOccupied = occupiedIds.includes(parseInt(seat.ID_KURSI));
+        const classMatch = !ticketClass || seat.KELAS_PENERBANAN === ticketClass;
         const seatEl = document.createElement('div');
         
         seatEl.innerText = colLetter;
@@ -423,6 +442,9 @@
         if (isOccupied) {
             seatEl.className = 'seat seat-occupied';
             seatEl.title = `Kursi ${seat.NO_KURSI2} (Terisi)`;
+        } else if (!classMatch) {
+            seatEl.className = 'seat seat-locked';
+            seatEl.title = `Kursi ${seat.NO_KURSI2} (${seat.KELAS_PENERBANAN}) — Tidak sesuai kelas tiket Anda`;
         } else {
             const classSlug = toClassSlug(seat.KELAS_PENERBANAN);
             seatEl.className = `seat seat-available seat-class-${classSlug}`;

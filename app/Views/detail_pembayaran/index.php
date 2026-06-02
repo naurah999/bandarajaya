@@ -10,9 +10,6 @@
 <div class="card">
     <div class="card-header">
         <h2>Detail Pelunasan Pembayaran</h2>
-        <a href="<?= base_url('/detail-pembayaran/create') ?>" class="btn btn-primary">
-            <i class="fas fa-receipt"></i> Catat Pelunasan
-        </a>
     </div>
     <div class="card-body">
         <div class="table-responsive">

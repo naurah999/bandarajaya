@@ -10,13 +10,13 @@ class TiketModel extends Model
     protected $primaryKey       = 'ID_TIKET';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $allowedFields    = ['ID_PENUMPANG', 'ID_MEMBAYAR', 'ID_PENERBANGAN', 'NOMER_TIKET', 'HARGA'];
+    protected $allowedFields    = ['ID_PENUMPANG', 'ID_MEMBAYAR', 'ID_PENERBANGAN', 'NOMER_TIKET', 'HARGA', 'KELAS_TIKET'];
 
     protected $validationRules = [
         'ID_PENUMPANG'   => 'required|numeric',
         'ID_PENERBANGAN' => 'required|numeric',
         'NOMER_TIKET'    => 'required|max_length[30]',
-        'HARGA'          => 'required|decimal',
+        'HARGA'          => 'permit_empty|decimal',
     ];
 
     public function getWithRelations()

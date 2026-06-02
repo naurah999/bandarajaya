@@ -10,7 +10,7 @@ class MigrateDb extends Controller
     {
         $db = \Config\Database::connect();
         
-        $sql = file_get_contents(ROOTPATH . 'database/migration_penerbangan.sql');
+        $sql = file_get_contents(ROOTPATH . 'database/migration_catalog.sql');
         
         $queries = explode(';', $sql);
         

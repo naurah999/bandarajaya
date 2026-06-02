@@ -51,23 +51,26 @@
 
             <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color);">Konfigurasi Kelas & Layout</h3>
 
-            <div style="display: grid; gap: 16px;">
+            <div style="margin-bottom: 20px; padding: 16px; background: rgba(99, 102, 241, 0.05); border: 1px solid var(--border-color); border-radius: 12px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <span style="font-size: 12px; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 4px;">Layout Kursi (Per Baris)</span>
+                    <span style="font-size: 16px; font-weight: 700; color: var(--accent-primary);"><i class="fas fa-grip-horizontal"></i> <?= esc($catalog['LAYOUT_KURSI'] ?? '3-3') ?></span>
+                </div>
+            </div>
+
+            <h4 style="font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px;">Kelas Tersedia</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
                 <?php foreach($catalog['kelas'] as $kelas): ?>
                     <div style="border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
-                        <div style="background: rgba(99, 102, 241, 0.05); padding: 12px 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-                            <strong style="color: var(--accent-primary); font-size: 14px;">
-                                <i class="fas fa-couch"></i> Kelas <?= esc($kelas['NAMA_KELAS']) ?>
-                            </strong>
-                            <span class="badge badge-info">Layout: <?= esc($kelas['LAYOUT_KURSI']) ?></span>
-                        </div>
-                        <div style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Rentang Baris (Row)</div>
-                                <div style="font-size: 15px; font-weight: 600;">Row <?= esc($kelas['BARIS_MULAI']) ?> sampai Row <?= esc($kelas['BARIS_AKHIR']) ?></div>
+                        <div style="background: #fff; padding: 16px; display: flex; flex-direction: column; gap: 4px;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                <div style="width: 24px; height: 24px; border-radius: 50%; background: <?= esc($kelas['WARNA_KELAS'] ?? '#3b82f6') ?>; border: 2px solid <?= esc($kelas['WARNA_KELAS'] ?? '#3b82f6') ?>44;"></div>
+                                <strong style="color: var(--text-primary); font-size: 14px;">
+                                    <?= esc($kelas['NAMA_KELAS']) ?>
+                                </strong>
                             </div>
-                            <div style="text-align: right;">
-                                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Huruf Kursi</div>
-                                <div style="font-size: 15px; font-weight: 600; letter-spacing: 2px;"><?= esc($kelas['HURUF_KURSI']) ?></div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">
+                                Harga Dasar: <strong style="color: var(--success);">Rp <?= number_format($kelas['HARGA_KELAS'] ?? 0, 0, ',', '.') ?></strong>
                             </div>
                         </div>
                     </div>

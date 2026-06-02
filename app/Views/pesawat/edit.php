@@ -16,7 +16,7 @@
                     <label for="id_catalog">Pilih Catalog (Template Pesawat) <span style="color:var(--danger)">*</span></label>
                     <select name="id_catalog" id="id_catalog" class="form-control" required>
                         <?php foreach ($catalogs as $c): ?>
-                            <option value="<?= $c['ID_CATALOG'] ?>" <?= $c['ID_CATALOG'] == $pesawat['ID_CATALOG'] ? 'selected' : '' ?>>
+                            <option value="<?= $c['ID_CATALOG'] ?>" data-kapasitas="<?= esc($c['TOTAL_KAPASITAS']) ?>" <?= $c['ID_CATALOG'] == $pesawat['ID_CATALOG'] ? 'selected' : '' ?>>
                                 <?= esc($c['TIPE_PESAWAT']) ?> (<?= esc($c['TOTAL_KAPASITAS']) ?> Kursi)
                             </option>
                         <?php endforeach; ?>
@@ -35,13 +35,17 @@
                     </div>
                 </div>
 
-                <div class="form-group">
                     <label for="status_pesawat">Status</label>
                     <select name="status_pesawat" id="status_pesawat" class="form-control" required>
                         <option value="Aktif" <?= ($pesawat['STATUS_PESAWAT'] ?? 'Aktif') == 'Aktif' ? 'selected' : '' ?>>Aktif</option>
                         <option value="Maintenance" <?= ($pesawat['STATUS_PESAWAT'] ?? '') == 'Maintenance' ? 'selected' : '' ?>>Maintenance</option>
                         <option value="Grounded" <?= ($pesawat['STATUS_PESAWAT'] ?? '') == 'Grounded' ? 'selected' : '' ?>>Grounded</option>
                     </select>
+                </div>
+                <div class="form-group">
+                    <label for="kapasitas">Kapasitas (Jumlah Kursi) <span style="color:var(--danger)">*</span></label>
+                    <input type="number" name="kapasitas" id="kapasitas" class="form-control" value="<?= esc($pesawat['KAPASITAS'] ?? '') ?>" required>
+                    <small style="color: var(--text-muted); font-size: 12px; margin-top: 4px; display: block;">Anda bisa menyesuaikan kapasitas jika berbeda dari standar catalog.</small>
                 </div>
 
                 <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
@@ -55,3 +59,15 @@
 </div>
 
 <?= $this->endSection() ?>
+
+<script>
+document.getElementById('id_catalog').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const kapasitas = selectedOption.getAttribute('data-kapasitas');
+    if (kapasitas) {
+        document.getElementById('kapasitas').value = kapasitas;
+    } else {
+        document.getElementById('kapasitas').value = '';
+    }
+});
+</script>

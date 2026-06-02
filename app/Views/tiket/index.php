@@ -17,6 +17,7 @@
                         <th>No. Tiket</th>
                         <th>Nama Penumpang</th>
                         <th>Penerbangan</th>
+                        <th>Kelas</th>
                         <th>Asal -> Tujuan</th>
                         <th>Harga</th>
                         <th>Aksi</th>
@@ -25,7 +26,7 @@
                 <tbody>
                     <?php if (empty($tikets)): ?>
                         <tr>
-                            <td colspan="6" class="empty-state">
+                            <td colspan="7" class="empty-state">
                                 <i class="fas fa-ticket-alt"></i>
                                 <p>Belum ada tiket yang terbit.</p>
                             </td>
@@ -36,6 +37,7 @@
                                 <td style="font-weight: 700; color: var(--accent-primary);"><?= esc($t['NOMER_TIKET']) ?></td>
                                 <td style="font-weight: 600; color: var(--text-primary);"><?= esc($t['NAMA_PENUMPANG']) ?></td>
                                 <td><?= esc($t['NAMA_MASKAPAI']) ?></td>
+                                <td><span class="badge badge-info"><?= esc($t['KELAS_TIKET'] ?? '-') ?></span></td>
                                 <td>
                                     <div style="font-size: 13px;">
                                         <?= esc($t['KOTA_ASAL']) ?> <i class="fas fa-arrow-right" style="font-size: 10px; margin: 0 4px;"></i> <?= esc($t['KOTA_TUJUAN']) ?>

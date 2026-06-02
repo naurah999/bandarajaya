@@ -64,7 +64,7 @@ class Pesawat extends BaseController
         $catalog = $catalogModel->find($catalogId);
         if ($catalog) {
             $data['TIPE_PESAWAT'] = $catalog['TIPE_PESAWAT'];
-            $data['KAPASITAS'] = $catalog['TOTAL_KAPASITAS'];
+            $data['KAPASITAS'] = $this->request->getPost('kapasitas') ? (int)$this->request->getPost('kapasitas') : $catalog['TOTAL_KAPASITAS'];
         }
 
         if (!$this->model->insert($data)) {
@@ -113,7 +113,7 @@ class Pesawat extends BaseController
         $catalog = $catalogModel->find($catalogId);
         if ($catalog) {
             $data['TIPE_PESAWAT'] = $catalog['TIPE_PESAWAT'];
-            $data['KAPASITAS'] = $catalog['TOTAL_KAPASITAS'];
+            $data['KAPASITAS'] = $this->request->getPost('kapasitas') ? (int)$this->request->getPost('kapasitas') : $catalog['TOTAL_KAPASITAS'];
         }
 
         if (!$this->model->update($id, $data)) {
@@ -133,28 +133,64 @@ class Pesawat extends BaseController
     }
 
     /**
-     * Generate seats from catalog class configuration
+     * Generate seats from catalog layout + capacity
      */
     private function generateSeatsFromCatalog(int $pesawatId, int $catalogId): void
     {
-        $kelasModel = new CatalogKelasModel();
-        $kursiModel = new KursiModel();
+        $catalogModel = new \App\Models\CatalogPesawatModel();
+        $kelasModel   = new CatalogKelasModel();
+        $kursiModel   = new KursiModel();
 
-        $kelasList = $kelasModel->where('ID_CATALOG', $catalogId)->orderBy('BARIS_MULAI', 'ASC')->findAll();
+        $catalog = $catalogModel->find($catalogId);
+        if (!$catalog) return;
 
-        foreach ($kelasList as $kelas) {
-            $hurufList = str_split($kelas['HURUF_KURSI']);
+        // Note: KAPASITAS on PESAWAT can override catalog capacity if we are generating for a specific plane
+        $pesawatModel = new \App\Models\PesawatModel();
+        $pesawat = $pesawatModel->find($pesawatId);
+        $kapasitas = $pesawat ? (int)$pesawat['KAPASITAS'] : (int)$catalog['TOTAL_KAPASITAS'];
 
-            for ($row = $kelas['BARIS_MULAI']; $row <= $kelas['BARIS_AKHIR']; $row++) {
-                foreach ($hurufList as $huruf) {
-                    $noKursi = $row . $huruf;
-                    $kursiModel->insert([
-                        'ID_PESAWAT'       => $pesawatId,
-                        'NO_KURSI2'        => $noKursi,
-                        'KELAS_PENERBANAN' => $kelas['NAMA_KELAS'],
-                        'STATUS_KURSI'     => 'Tersedia',
-                    ]);
-                }
+        $layoutStr = $catalog['LAYOUT_KURSI'] ?? '3-3';
+
+        // Get first available class name
+        $kelasList = $kelasModel->where('ID_CATALOG', $catalogId)->findAll();
+        $defaultClass = !empty($kelasList) ? $kelasList[0]['NAMA_KELAS'] : 'Ekonomi';
+
+        // Calculate seats per row from layout (e.g. "3-3" = 6, "2-4-2" = 8)
+        $layoutParts = explode('-', $layoutStr);
+        $seatsPerRow = array_sum($layoutParts);
+
+        // Standardize letters based on layout if possible
+        $letters = [];
+        if ($layoutStr == '2-4-2') {
+            $letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+        } else if ($layoutStr == '2-2-2') {
+            $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+        } else if ($layoutStr == '3-3') {
+            $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+        } else if ($layoutStr == '2-2') {
+            $letters = ['A', 'B', 'C', 'D'];
+        } else if ($layoutStr == '1-2-1') {
+            $letters = ['A', 'D', 'G', 'K'];
+        } else {
+            for ($i = 0; $i < $seatsPerRow; $i++) {
+                $letters[] = chr(65 + $i);
+            }
+        }
+
+        $totalRows = (int)ceil($kapasitas / $seatsPerRow);
+        $seatCount = 0;
+
+        for ($row = 1; $row <= $totalRows; $row++) {
+            foreach ($letters as $letter) {
+                if ($seatCount >= $kapasitas) break 2;
+                $noKursi = $row . $letter;
+                $kursiModel->insert([
+                    'ID_PESAWAT'       => $pesawatId,
+                    'NO_KURSI2'        => $noKursi,
+                    'KELAS_PENERBANAN' => $defaultClass,
+                    'STATUS_KURSI'     => 'Tersedia',
+                ]);
+                $seatCount++;
             }
         }
     }
@@ -177,6 +213,6 @@ class Pesawat extends BaseController
         // Regenerate from catalog
         $this->generateSeatsFromCatalog($id, (int)$pesawat['ID_CATALOG']);
 
-        return redirect()->to('/pesawat')->with('success', 'Kursi berhasil di-generate ulang sesuai catalog.');
+        return redirect()->to('/pesawat')->with('success', 'Kursi berhasil di-generate ulang sesuai layout dan kapasitas pesawat.');
     }
 }

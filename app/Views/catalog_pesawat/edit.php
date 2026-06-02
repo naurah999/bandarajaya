@@ -41,24 +41,61 @@
                     </div>
                 </div>
 
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="layout_kursi">Layout Kursi <span style="color:var(--danger)">*</span></label>
+                        <select name="layout_kursi" id="layout_kursi" class="form-control" required>
+                            <?php $currLayout = $catalog['LAYOUT_KURSI'] ?? ''; ?>
+                            <optgroup label="Wide-body (Lorong Ganda)">
+                                <option value="3-4-3" <?= $currLayout == '3-4-3' ? 'selected' : '' ?>>3-4-3 (Boeing 777, A380)</option>
+                                <option value="3-3-3" <?= $currLayout == '3-3-3' ? 'selected' : '' ?>>3-3-3 (Boeing 777, 787, A350)</option>
+                                <option value="2-4-2" <?= $currLayout == '2-4-2' ? 'selected' : '' ?>>2-4-2 (Airbus A330)</option>
+                                <option value="2-3-2" <?= $currLayout == '2-3-2' ? 'selected' : '' ?>>2-3-2 (Boeing 767)</option>
+                                <option value="2-2-2" <?= $currLayout == '2-2-2' ? 'selected' : '' ?>>2-2-2 (Business Class Wide-body)</option>
+                                <option value="1-2-1" <?= $currLayout == '1-2-1' ? 'selected' : '' ?>>1-2-1 (Business/First Class)</option>
+                            </optgroup>
+                            <optgroup label="Narrow-body (Lorong Tunggal)">
+                                <option value="3-3" <?= $currLayout == '3-3' ? 'selected' : '' ?>>3-3 (Boeing 737, A320 standar)</option>
+                                <option value="2-3" <?= $currLayout == '2-3' ? 'selected' : '' ?>>2-3 (Airbus A220, MD-80)</option>
+                                <option value="2-2" <?= $currLayout == '2-2' ? 'selected' : '' ?>>2-2 (Embraer E-Jet, Business Class)</option>
+                            </optgroup>
+                            <optgroup label="Regional / Turboprop">
+                                <option value="2-2" <?= $currLayout == '2-2' ? 'selected' : '' ?>>2-2 (ATR 72, Dash 8)</option>
+                                <option value="1-2" <?= $currLayout == '1-2' ? 'selected' : '' ?>>1-2 (Embraer ERJ)</option>
+                                <option value="1-1" <?= $currLayout == '1-1' ? 'selected' : '' ?>>1-1 (Light Aircraft/Cessna)</option>
+                            </optgroup>
+                        </select>
+                        <small style="color: var(--text-muted); font-size: 12px; margin-top: 4px; display: block;">Layout berlaku untuk seluruh kursi di pesawat ini.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="total_kapasitas">Total Kapasitas Kursi <span style="color:var(--danger)">*</span></label>
+                        <input type="number" name="total_kapasitas" id="total_kapasitas" class="form-control" value="<?= esc($catalog['TOTAL_KAPASITAS']) ?>" min="1" required>
+                        <small style="color: var(--text-muted); font-size: 12px; margin-top: 4px; display: block;">Jumlah total semua kursi di pesawat.</small>
+                    </div>
+                </div>
+
                 <h3 style="font-size: 15px; margin-top: 24px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-                    Konfigurasi Kelas & Kursi
+                    Kelas Tersedia
                     <button type="button" class="btn btn-success btn-sm" id="btnTambahKelas">
                         <i class="fas fa-plus"></i> Tambah Kelas
                     </button>
                 </h3>
+
+                <div style="background: var(--info-bg); border: 1px solid rgba(6,182,212,0.2); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;">
+                    <p style="font-size: 12px; color: var(--text-secondary); margin: 0;">
+                        <i class="fas fa-info-circle" style="color: var(--info);"></i>
+                        Daftarkan kelas penerbangan yang tersedia. Penentuan kursi mana yang masuk kelas mana dilakukan di menu <strong>Kursi → Atur Kelas Kursi</strong>.
+                    </p>
+                </div>
                 
                 <div id="kelasContainer">
                     <?php if(empty($catalog['kelas'])): ?>
-                        <!-- Jika tidak ada kelas sebelumnya -->
-                        <div class="kelas-row" style="background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 16px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <div class="kelas-row" style="background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                                 <strong style="font-size: 13px; color: var(--text-primary);">Kelas #1</strong>
-                                <button type="button" class="btn btn-danger btn-sm btn-hapus-kelas" style="padding: 4px 8px; display: none;">
-                                    <i class="fas fa-times"></i>
-                                </button>
+                                <button type="button" class="btn btn-danger btn-sm btn-hapus-kelas" style="padding: 4px 8px; display: none;"><i class="fas fa-times"></i></button>
                             </div>
-                            <div style="display: grid; grid-template-columns: 2fr 0.8fr 1fr 1fr 1fr 1.2fr; gap: 12px;">
+                            <div style="display: grid; grid-template-columns: 2fr 1fr 2fr; gap: 12px;">
                                 <div>
                                     <label style="font-size: 11px;">Nama Kelas</label>
                                     <select name="nama_kelas[]" class="form-control select-nama-kelas" required onchange="handleClassChange(this)">
@@ -72,47 +109,28 @@
                                 </div>
                                 <div>
                                     <label style="font-size: 11px;">Warna</label>
-                                    <input type="color" name="warna_kelas[]" class="form-control input-warna-kelas" style="padding: 2px; height: 38px; cursor: pointer;" value="#3b82f6" title="Pilih warna untuk kelas ini">
+                                    <input type="color" name="warna_kelas[]" class="form-control input-warna-kelas" style="padding: 2px; height: 38px; cursor: pointer;" value="#3b82f6">
                                 </div>
                                 <div>
-                                    <label style="font-size: 11px;">Layout</label>
-                                    <select name="layout_kursi[]" class="form-control" required>
-                                        <option value="3-3">3-3</option>
-                                        <option value="2-2">2-2</option>
-                                        <option value="2-4-2">2-4-2</option>
-                                        <option value="2-2-2">2-2-2</option>
-                                        <option value="1-2-1">1-2-1</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label style="font-size: 11px;">Row Mulai</label>
-                                    <input type="number" name="baris_mulai[]" class="form-control" min="1" required>
-                                </div>
-                                <div>
-                                    <label style="font-size: 11px;">Row Akhir</label>
-                                    <input type="number" name="baris_akhir[]" class="form-control" min="1" required>
-                                </div>
-                                <div>
-                                    <label style="font-size: 11px;">Huruf Kursi</label>
-                                    <input type="text" name="huruf_kursi[]" class="form-control" required>
+                                    <label style="font-size: 11px;">Harga Dasar Tiket</label>
+                                    <input type="number" name="harga_kelas[]" class="form-control" placeholder="Contoh: 1500000" min="0" required>
                                 </div>
                             </div>
                         </div>
                     <?php else: ?>
-                        <!-- Render existing classes -->
                         <?php foreach($catalog['kelas'] as $index => $kelas): ?>
                             <?php 
                             $standardClasses = ['Ekonomi', 'Bisnis', 'First Class', 'Premium Economy'];
                             $isCustom = !in_array($kelas['NAMA_KELAS'], $standardClasses);
                             ?>
-                            <div class="kelas-row" style="background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 16px;">
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                            <div class="kelas-row" style="background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 12px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                                     <strong style="font-size: 13px; color: var(--text-primary);">Kelas #<?= $index + 1 ?></strong>
                                     <button type="button" class="btn btn-danger btn-sm btn-hapus-kelas" style="padding: 4px 8px; <?= count($catalog['kelas']) <= 1 ? 'display: none;' : '' ?>">
                                         <i class="fas fa-times"></i> Hapus
                                     </button>
                                 </div>
-                                <div style="display: grid; grid-template-columns: 2fr 0.8fr 1fr 1fr 1fr 1.2fr; gap: 12px;">
+                                <div style="display: grid; grid-template-columns: 2fr 1fr 2fr; gap: 12px;">
                                     <div>
                                         <label style="font-size: 11px;">Nama Kelas</label>
                                         <select name="nama_kelas[]" class="form-control select-nama-kelas" required onchange="handleClassChange(this)">
@@ -126,30 +144,13 @@
                                     </div>
                                     <div>
                                         <label style="font-size: 11px;">Warna</label>
-                                        <input type="color" name="warna_kelas[]" class="form-control input-warna-kelas" style="padding: 2px; height: 38px; cursor: pointer;" value="<?= esc($kelas['WARNA_KELAS'] ?? '#3b82f6') ?>" title="Pilih warna untuk kelas ini">
+                                        <input type="color" name="warna_kelas[]" class="form-control input-warna-kelas" style="padding: 2px; height: 38px; cursor: pointer;" value="<?= esc($kelas['WARNA_KELAS'] ?? '#3b82f6') ?>">
                                     </div>
                                     <div>
-                                        <label style="font-size: 11px;">Layout</label>
-                                        <select name="layout_kursi[]" class="form-control" required>
-                                            <option value="3-3" <?= $kelas['LAYOUT_KURSI'] == '3-3' ? 'selected' : '' ?>>3-3</option>
-                                            <option value="2-2" <?= $kelas['LAYOUT_KURSI'] == '2-2' ? 'selected' : '' ?>>2-2</option>
-                                            <option value="2-4-2" <?= $kelas['LAYOUT_KURSI'] == '2-4-2' ? 'selected' : '' ?>>2-4-2</option>
-                                            <option value="2-2-2" <?= $kelas['LAYOUT_KURSI'] == '2-2-2' ? 'selected' : '' ?>>2-2-2</option>
-                                            <option value="1-2-1" <?= $kelas['LAYOUT_KURSI'] == '1-2-1' ? 'selected' : '' ?>>1-2-1</option>
-                                        </select>
+                                        <label style="font-size: 11px;">Harga Dasar Tiket</label>
+                                        <input type="number" name="harga_kelas[]" class="form-control" value="<?= esc($kelas['HARGA_KELAS'] ?? 0) ?>" min="0" required>
                                     </div>
-                                    <div>
-                                        <label style="font-size: 11px;">Row Mulai</label>
-                                        <input type="number" name="baris_mulai[]" class="form-control" value="<?= esc($kelas['BARIS_MULAI']) ?>" min="1" required>
-                                    </div>
-                                    <div>
-                                        <label style="font-size: 11px;">Row Akhir</label>
-                                        <input type="number" name="baris_akhir[]" class="form-control" value="<?= esc($kelas['BARIS_AKHIR']) ?>" min="1" required>
-                                    </div>
-                                    <div>
-                                        <label style="font-size: 11px;">Huruf Kursi</label>
-                                        <input type="text" name="huruf_kursi[]" class="form-control" value="<?= esc($kelas['HURUF_KURSI']) ?>" required>
-                                    </div>
+                                </div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -180,17 +181,8 @@ function handleClassChange(select) {
         customInput.style.display = 'none';
         customInput.required = false;
         customInput.value = '';
-        
-        // Auto set default colors
-        if (select.value === 'Ekonomi') {
-            colorInput.value = '#3b82f6';
-        } else if (select.value === 'Bisnis') {
-            colorInput.value = '#f59e0b';
-        } else if (select.value === 'First Class') {
-            colorInput.value = '#8b5cf6';
-        } else if (select.value === 'Premium Economy') {
-            colorInput.value = '#10b981';
-        }
+        const colors = { 'Ekonomi': '#3b82f6', 'Bisnis': '#f59e0b', 'First Class': '#8b5cf6', 'Premium Economy': '#10b981' };
+        if (colors[select.value]) colorInput.value = colors[select.value];
     }
 }
 
@@ -202,14 +194,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const rows = document.querySelectorAll('.kelas-row');
         const count = rows.length + 1;
         const template = `
-            <div class="kelas-row" style="background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 16px; display: none;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+            <div class="kelas-row" style="background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 12px; display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                     <strong style="font-size: 13px; color: var(--text-primary);">Kelas #${count}</strong>
-                    <button type="button" class="btn btn-danger btn-sm btn-hapus-kelas" style="padding: 4px 8px;">
-                        <i class="fas fa-times"></i> Hapus
-                    </button>
+                    <button type="button" class="btn btn-danger btn-sm btn-hapus-kelas" style="padding: 4px 8px;"><i class="fas fa-times"></i> Hapus</button>
                 </div>
-                <div style="display: grid; grid-template-columns: 2fr 0.8fr 1fr 1fr 1fr 1.2fr; gap: 12px;">
+                <div style="display: grid; grid-template-columns: 2fr 1fr 2fr; gap: 12px;">
                     <div>
                         <label style="font-size: 11px;">Nama Kelas</label>
                         <select name="nama_kelas[]" class="form-control select-nama-kelas" required onchange="handleClassChange(this)">
@@ -223,34 +213,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <div>
                         <label style="font-size: 11px;">Warna</label>
-                        <input type="color" name="warna_kelas[]" class="form-control input-warna-kelas" style="padding: 2px; height: 38px; cursor: pointer;" value="#3b82f6" title="Pilih warna untuk kelas ini">
+                        <input type="color" name="warna_kelas[]" class="form-control input-warna-kelas" style="padding: 2px; height: 38px; cursor: pointer;" value="#3b82f6">
                     </div>
                     <div>
-                        <label style="font-size: 11px;">Layout</label>
-                        <select name="layout_kursi[]" class="form-control" required>
-                            <option value="3-3">3-3</option>
-                            <option value="2-2">2-2</option>
-                            <option value="2-4-2">2-4-2</option>
-                            <option value="2-2-2">2-2-2</option>
-                            <option value="1-2-1">1-2-1</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="font-size: 11px;">Row Mulai</label>
-                        <input type="number" name="baris_mulai[]" class="form-control" min="1" required>
-                    </div>
-                    <div>
-                        <label style="font-size: 11px;">Row Akhir</label>
-                        <input type="number" name="baris_akhir[]" class="form-control" min="1" required>
-                    </div>
-                    <div>
-                        <label style="font-size: 11px;">Huruf Kursi</label>
-                        <input type="text" name="huruf_kursi[]" class="form-control" required>
+                        <label style="font-size: 11px;">Harga Dasar Tiket</label>
+                        <input type="number" name="harga_kelas[]" class="form-control" placeholder="Contoh: 1500000" min="0" required>
                     </div>
                 </div>
             </div>
         `;
-        
         container.insertAdjacentHTML('beforeend', template);
         const newRow = container.lastElementChild;
         newRow.style.display = 'block';
@@ -267,24 +238,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Auto update huruf_kursi based on layout selection
-    container.addEventListener('change', function(e) {
-        if (e.target.name === 'layout_kursi[]') {
-            const row = e.target.closest('.kelas-row');
-            const hurufInput = row.querySelector('input[name="huruf_kursi[]"]');
-            const layout = e.target.value;
-            
-            if (layout === '3-3' || layout === '2-2-2') hurufInput.value = 'ABCDEF';
-            else if (layout === '2-2') hurufInput.value = 'ABCD';
-            else if (layout === '2-4-2') hurufInput.value = 'ABCDEFGH';
-            else if (layout === '1-2-1') hurufInput.value = 'ADGK';
-        }
-    });
-
     function updateDeleteButtons() {
         const rows = document.querySelectorAll('.kelas-row');
         const btns = document.querySelectorAll('.btn-hapus-kelas');
-        if (rows.length > 1) { btns.forEach(btn => btn.style.display = 'inline-block'); } 
+        if (rows.length > 1) { btns.forEach(btn => btn.style.display = 'inline-block'); }
         else { btns.forEach(btn => btn.style.display = 'none'); }
     }
 

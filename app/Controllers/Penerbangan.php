@@ -38,10 +38,24 @@ class Penerbangan extends BaseController
 
     public function store()
     {
+        $kodePenerbangan = $this->request->getPost('kode_penerbangan');
+        if (empty($kodePenerbangan)) {
+            $pesawatModel = new PesawatModel();
+            $pesawat = $pesawatModel->getWithCatalog();
+            $kodeMaskapai = 'FL'; // Default
+            foreach ($pesawat as $p) {
+                if ($p['ID_PESAWAT'] == $this->request->getPost('id_pesawat')) {
+                    $kodeMaskapai = $p['KODE_MASKAPAI'];
+                    break;
+                }
+            }
+            $kodePenerbangan = $kodeMaskapai . '-' . rand(100, 999);
+        }
+
         $data = [
             'ID_PESAWAT'        => $this->request->getPost('id_pesawat'),
             'ID_GATE'           => $this->request->getPost('id_gate'),
-            'KODE_PENERBANGAN'  => $this->request->getPost('kode_penerbangan'),
+            'KODE_PENERBANGAN'  => $kodePenerbangan,
             'TANGGAL_BERANGKAT' => $this->request->getPost('tanggal_berangkat'),
             'WAKTU_BERANGKAT'   => $this->request->getPost('waktu_berangkat'),
             'KOTA_ASAL'         => $this->request->getPost('kota_asal'),
@@ -73,10 +87,24 @@ class Penerbangan extends BaseController
 
     public function update($id)
     {
+        $kodePenerbangan = $this->request->getPost('kode_penerbangan');
+        if (empty($kodePenerbangan)) {
+            $pesawatModel = new PesawatModel();
+            $pesawat = $pesawatModel->getWithCatalog();
+            $kodeMaskapai = 'FL'; // Default
+            foreach ($pesawat as $p) {
+                if ($p['ID_PESAWAT'] == $this->request->getPost('id_pesawat')) {
+                    $kodeMaskapai = $p['KODE_MASKAPAI'];
+                    break;
+                }
+            }
+            $kodePenerbangan = $kodeMaskapai . '-' . rand(100, 999);
+        }
+
         $data = [
             'ID_PESAWAT'        => $this->request->getPost('id_pesawat'),
             'ID_GATE'           => $this->request->getPost('id_gate'),
-            'KODE_PENERBANGAN'  => $this->request->getPost('kode_penerbangan'),
+            'KODE_PENERBANGAN'  => $kodePenerbangan,
             'TANGGAL_BERANGKAT' => $this->request->getPost('tanggal_berangkat'),
             'WAKTU_BERANGKAT'   => $this->request->getPost('waktu_berangkat'),
             'KOTA_ASAL'         => $this->request->getPost('kota_asal'),

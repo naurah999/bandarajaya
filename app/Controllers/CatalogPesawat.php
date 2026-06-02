@@ -22,7 +22,7 @@ class CatalogPesawat extends BaseController
 
         // Attach kelas data to each catalog
         foreach ($catalogs as &$cat) {
-            $cat['kelas'] = $kelasModel->where('ID_CATALOG', $cat['ID_CATALOG'])->orderBy('BARIS_MULAI', 'ASC')->findAll();
+            $cat['kelas'] = $kelasModel->where('ID_CATALOG', $cat['ID_CATALOG'])->findAll();
         }
 
         $data = [
@@ -44,7 +44,8 @@ class CatalogPesawat extends BaseController
             'TIPE_PESAWAT'    => $this->request->getPost('tipe_pesawat'),
             'KODE_TIPE'       => $this->request->getPost('kode_tipe'),
             'KATEGORI'        => $this->request->getPost('kategori'),
-            'TOTAL_KAPASITAS' => 0, // Will be calculated
+            'LAYOUT_KURSI'    => $this->request->getPost('layout_kursi'),
+            'TOTAL_KAPASITAS' => (int)$this->request->getPost('total_kapasitas'),
             'DESKRIPSI'       => $this->request->getPost('deskripsi'),
         ];
 
@@ -54,14 +55,10 @@ class CatalogPesawat extends BaseController
 
         $catalogId = $this->model->getInsertID();
 
-        // Save class configurations
+        // Save class configurations (just name + color)
         $this->saveKelasConfig($catalogId);
 
-        // Recalculate capacity
-        $totalKapasitas = $this->model->hitungKapasitas($catalogId);
-        $this->model->update($catalogId, ['TOTAL_KAPASITAS' => $totalKapasitas]);
-
-        return redirect()->to('/catalog-pesawat')->with('success', 'Catalog pesawat berhasil ditambahkan dengan ' . $totalKapasitas . ' kursi.');
+        return redirect()->to('/catalog-pesawat')->with('success', 'Catalog pesawat berhasil ditambahkan.');
     }
 
     public function show(int $id)
@@ -94,6 +91,8 @@ class CatalogPesawat extends BaseController
             'TIPE_PESAWAT'    => $this->request->getPost('tipe_pesawat'),
             'KODE_TIPE'       => $this->request->getPost('kode_tipe'),
             'KATEGORI'        => $this->request->getPost('kategori'),
+            'LAYOUT_KURSI'    => $this->request->getPost('layout_kursi'),
+            'TOTAL_KAPASITAS' => (int)$this->request->getPost('total_kapasitas'),
             'DESKRIPSI'       => $this->request->getPost('deskripsi'),
         ];
 
@@ -106,10 +105,6 @@ class CatalogPesawat extends BaseController
         $kelasModel->where('ID_CATALOG', $id)->delete();
 
         $this->saveKelasConfig($id);
-
-        // Recalculate capacity
-        $totalKapasitas = $this->model->hitungKapasitas($id);
-        $this->model->update($id, ['TOTAL_KAPASITAS' => $totalKapasitas]);
 
         return redirect()->to('/catalog-pesawat')->with('success', 'Catalog pesawat berhasil diperbarui.');
     }
@@ -135,13 +130,10 @@ class CatalogPesawat extends BaseController
     {
         $kelasModel = new CatalogKelasModel();
 
-        $namaKelas   = $this->request->getPost('nama_kelas') ?? [];
-        $customNama  = $this->request->getPost('custom_nama_kelas') ?? [];
-        $layoutKursi = $this->request->getPost('layout_kursi') ?? [];
-        $barisMulai  = $this->request->getPost('baris_mulai') ?? [];
-        $barisAkhir  = $this->request->getPost('baris_akhir') ?? [];
-        $hurufKursi  = $this->request->getPost('huruf_kursi') ?? [];
-        $warnaKelas  = $this->request->getPost('warna_kelas') ?? [];
+        $namaKelas  = $this->request->getPost('nama_kelas') ?? [];
+        $customNama = $this->request->getPost('custom_nama_kelas') ?? [];
+        $warnaKelas = $this->request->getPost('warna_kelas') ?? [];
+        $hargaKelas = $this->request->getPost('harga_kelas') ?? [];
 
         for ($i = 0; $i < count($namaKelas); $i++) {
             $name = $namaKelas[$i];
@@ -152,13 +144,10 @@ class CatalogPesawat extends BaseController
             if (empty($name)) continue;
 
             $kelasModel->insert([
-                'ID_CATALOG'   => $catalogId,
-                'NAMA_KELAS'   => $name,
-                'LAYOUT_KURSI' => $layoutKursi[$i] ?? '3-3',
-                'BARIS_MULAI'  => (int)($barisMulai[$i] ?? 1),
-                'BARIS_AKHIR'  => (int)($barisAkhir[$i] ?? 1),
-                'HURUF_KURSI'  => strtoupper($hurufKursi[$i] ?? 'ABCDEF'),
-                'WARNA_KELAS'  => $warnaKelas[$i] ?? '#3b82f6',
+                'ID_CATALOG'  => $catalogId,
+                'NAMA_KELAS'  => $name,
+                'WARNA_KELAS' => $warnaKelas[$i] ?? '#3b82f6',
+                'HARGA_KELAS' => isset($hargaKelas[$i]) ? (float)$hargaKelas[$i] : 0,
             ]);
         }
     }

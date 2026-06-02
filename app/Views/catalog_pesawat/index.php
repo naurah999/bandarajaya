@@ -41,12 +41,10 @@
                                 <td style="font-weight: 700;"><?= esc($c['TOTAL_KAPASITAS']) ?> Kursi</td>
                                 <td>
                                     <?php if(!empty($c['kelas'])): ?>
-                                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
                                             <?php foreach($c['kelas'] as $kelas): ?>
-                                                <span style="font-size: 12px; color: var(--text-secondary);">
-                                                    <i class="fas fa-couch" style="font-size: 10px; margin-right: 4px;"></i>
-                                                    <?= esc($kelas['NAMA_KELAS']) ?>: <?= esc($kelas['LAYOUT_KURSI']) ?> 
-                                                    (Row <?= esc($kelas['BARIS_MULAI']) ?>-<?= esc($kelas['BARIS_AKHIR']) ?>)
+                                                <span style="font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; background: <?= esc($kelas['WARNA_KELAS'] ?? '#3b82f6') ?>22; color: <?= esc($kelas['WARNA_KELAS'] ?? '#3b82f6') ?>; border: 1px solid <?= esc($kelas['WARNA_KELAS'] ?? '#3b82f6') ?>66;">
+                                                    <?= esc($kelas['NAMA_KELAS']) ?> — Rp <?= number_format($kelas['HARGA_KELAS'] ?? 0, 0, ',', '.') ?>
                                                 </span>
                                             <?php endforeach; ?>
                                         </div>

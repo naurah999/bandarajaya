@@ -11,6 +11,13 @@ class Laporan extends BaseController
     public function penjualan()
     {
         $detailModel = new DetailPembayaranModel();
+        $maskapaiModel = new \App\Models\MaskapaiModel();
+        $maskapai = $maskapaiModel->first() ?? [
+            'NAMA_MASKAPAI' => 'Bandara Jaya Airlines',
+            'KODE_MASKAPAI' => 'BJA',
+            'NEGARA_ASAL' => 'Indonesia',
+            'NO_KONTAK' => '+62 811-234-5678'
+        ];
         
         $start = $this->request->getGet('start_date') ?? date('Y-m-01');
         $end = $this->request->getGet('end_date') ?? date('Y-m-d');
@@ -27,7 +34,8 @@ class Laporan extends BaseController
                 ->where('TGL_BAYAR >=', $start . ' 00:00:00')
                 ->where('TGL_BAYAR <=', $end . ' 23:59:59')
                 ->orderBy('TGL_BAYAR', 'DESC')
-                ->findAll()
+                ->findAll(),
+            'maskapai'   => $maskapai
         ];
 
         return view('laporan/penjualan', $data);
@@ -36,7 +44,15 @@ class Laporan extends BaseController
     public function manifest()
     {
         $penerbanganModel = new PenerbanganModel();
+        $maskapaiModel = new \App\Models\MaskapaiModel();
         $idFlight = $this->request->getGet('id_penerbangan');
+
+        $maskapai = $maskapaiModel->first() ?? [
+            'NAMA_MASKAPAI' => 'Bandara Jaya Airlines',
+            'KODE_MASKAPAI' => 'BJA',
+            'NEGARA_ASAL' => 'Indonesia',
+            'NO_KONTAK' => '+62 811-234-5678'
+        ];
 
         $manifest = [];
         $selectedFlight = null;
@@ -62,7 +78,8 @@ class Laporan extends BaseController
             'title'          => 'Laporan Manifest Penumpang',
             'penerbangan'    => $penerbanganModel->getWithRelations(),
             'manifest'       => $manifest,
-            'selectedFlight' => $selectedFlight
+            'selectedFlight' => $selectedFlight,
+            'maskapai'       => $maskapai
         ];
 
         return view('laporan/manifest', $data);

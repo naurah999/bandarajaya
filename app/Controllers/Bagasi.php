@@ -69,4 +69,22 @@ class Bagasi extends BaseController
         $this->model->delete($id);
         return redirect()->to('/bagasi')->with('success', 'Data bagasi berhasil dihapus');
     }
+
+    public function bulkUpdateStatus()
+    {
+        $ids = $this->request->getPost('bagasi_ids');
+        $status = $this->request->getPost('bulk_status');
+
+        if (!empty($ids) && !empty($status)) {
+            $idArray = explode(',', $ids);
+            $db = \Config\Database::connect();
+            $db->table('BAGASI')
+               ->whereIn('ID_BAGASI', $idArray)
+               ->update(['STATUS_BAGASI' => $status]);
+               
+            return redirect()->to('/bagasi')->with('success', count($idArray) . ' bagasi berhasil diubah statusnya menjadi ' . $status);
+        }
+        
+        return redirect()->to('/bagasi')->with('error', 'Gagal: Tidak ada bagasi yang dipilih atau status kosong.');
+    }
 }

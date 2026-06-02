@@ -18,7 +18,7 @@
                         <th>Kode</th>
                         <th>Pesawat</th>
                         <th>Rute</th>
-                        <th>Gate / Harga</th>
+                        <th>Gate</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -52,8 +52,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div style="margin-bottom: 4px;"><span class="badge badge-info">Gate <?= esc($p['NOMOR_GATE']) ?></span></div>
-                                    <div style="font-weight: 700; color: var(--success); font-size: 12px;">Rp <?= number_format($p['HARGA'] ?? 0, 0, ',', '.') ?></div>
+                                    <span class="badge badge-info">Gate <?= esc($p['NOMOR_GATE']) ?></span>
                                 </td>
                                 <td>
                                     <div class="action-btns">

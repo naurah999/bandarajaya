@@ -41,6 +41,8 @@ class Kursi extends BaseController
         $occupiedMap = [];
         $pesawat     = null;
         $classColors = [];
+        $classLayouts = [];
+        $rowClassMap  = [];
 
         if ($selectedFlight) {
             $idPesawat = $selectedFlight['ID_PESAWAT'];
@@ -68,7 +70,12 @@ class Kursi extends BaseController
             }
 
             // Class colours from catalog
+            $layoutKursi = '3-3';
             if ($pesawat && !empty($pesawat['ID_CATALOG'])) {
+                $catalogModel = new \App\Models\CatalogPesawatModel();
+                $catalog = $catalogModel->find($pesawat['ID_CATALOG']);
+                if ($catalog) $layoutKursi = $catalog['LAYOUT_KURSI'];
+
                 $kelasModel = new \App\Models\CatalogKelasModel();
                 $classes    = $kelasModel->where('ID_CATALOG', $pesawat['ID_CATALOG'])->findAll();
                 foreach ($classes as $cl) {
@@ -79,7 +86,7 @@ class Kursi extends BaseController
 
         // --- Data for "Atur Kelas Kursi" tab ---
         // All planes (for the plane selector)
-        $allPesawat = $pesawatModel->findAll();
+        $allPesawat = $pesawatModel->getWithCatalog();
 
         $data = [
             'title'            => 'Peta & Data Kursi Pesawat',
@@ -89,6 +96,7 @@ class Kursi extends BaseController
             'seats'            => $seats,
             'occupiedMap'      => $occupiedMap,
             'pesawat'          => $pesawat,
+            'layoutKursi'      => $layoutKursi ?? '3-3',
             'classColors'      => $classColors,
             'kursi'            => $this->model->getWithPesawat(),
             'allPesawat'       => $allPesawat,
@@ -114,7 +122,12 @@ class Kursi extends BaseController
 
         $classes     = [];
         $classColors = [];
+        $layoutKursi = '3-3';
         if (!empty($pesawat['ID_CATALOG'])) {
+            $catalogModel = new \App\Models\CatalogPesawatModel();
+            $catalog = $catalogModel->find($pesawat['ID_CATALOG']);
+            if ($catalog) $layoutKursi = $catalog['LAYOUT_KURSI'];
+
             $kelasModel = new \App\Models\CatalogKelasModel();
             $rows       = $kelasModel->where('ID_CATALOG', $pesawat['ID_CATALOG'])->findAll();
             foreach ($rows as $r) {
@@ -125,8 +138,9 @@ class Kursi extends BaseController
 
         return $this->response->setJSON([
             'seats'       => $seats,
-            'classes'     => $classes,       // name => color map
+            'classes'     => $classes,
             'classColors' => $classColors,
+            'layoutKursi' => $layoutKursi,
             'pesawat'     => $pesawat,
         ]);
     }

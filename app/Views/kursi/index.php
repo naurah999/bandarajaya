@@ -116,6 +116,10 @@
         flex-shrink: 0;
     }
 
+    .airplane-hull {
+        user-select: none;
+    }
+
     /* ── Seat Row Grid ───────────────────────────────────────── */
     .seating-row {
         display: flex;
@@ -401,7 +405,6 @@
                 <?php
                 $seatingGrid  = [];
                 $rows         = [];
-                $colLetters   = [];
                 $totalOccupied = count($occupiedMap);
                 $totalSeats    = count($seats);
 
@@ -412,20 +415,10 @@
                             $r = intval($m[1]);
                             $c = strtoupper($m[2]);
                             $seatingGrid[$r][$c] = $seat;
-                            if (!in_array($r, $rows))       $rows[]       = $r;
-                            if (!in_array($c, $colLetters)) $colLetters[] = $c;
+                            if (!in_array($r, $rows)) $rows[] = $r;
                         }
                     }
-                    sort($rows); sort($colLetters);
-                }
-                $tc = count($colLetters);
-                if ($tc > 0) {
-                    $si        = (int)ceil($tc / 2);
-                    $leftCols  = array_slice($colLetters, 0, $si);
-                    $rightCols = array_slice($colLetters, $si);
-                } else {
-                    $leftCols  = ['A','B','C'];
-                    $rightCols = ['D','E','F'];
+                    sort($rows);
                 }
                 ?>
 
@@ -437,80 +430,81 @@
                     </div>
                 <?php else: ?>
                     <?php foreach ($rows as $r): ?>
+                        <?php
+                        $layoutParts = explode('-', $layoutKursi);
+                        
+                        // Standardize expected letters based on layout
+                        $expectedLetters = [];
+                        if ($layoutKursi == '2-4-2') {
+                            $expectedLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+                        } else if ($layoutKursi == '2-2-2') {
+                            $expectedLetters = ['A', 'B', 'C', 'D', 'E', 'F'];
+                        } else if ($layoutKursi == '3-3') {
+                            $expectedLetters = ['A', 'B', 'C', 'D', 'E', 'F'];
+                        } else if ($layoutKursi == '2-2') {
+                            $expectedLetters = ['A', 'B', 'C', 'D'];
+                        } else if ($layoutKursi == '1-2-1') {
+                            $expectedLetters = ['A', 'D', 'G', 'K'];
+                        } else {
+                            $totalExpected = array_sum($layoutParts);
+                            for($i=0; $i<$totalExpected; $i++) {
+                                $expectedLetters[] = chr(65 + $i);
+                            }
+                        }
+                        ?>
+
                         <div class="seating-row">
                             <div class="row-label"><?= $r ?></div>
 
-                            <!-- Left -->
-                            <div class="col-group">
-                                <?php foreach ($leftCols as $c): ?>
-                                    <?php if (isset($seatingGrid[$r][$c])): ?>
-                                        <?php
-                                        $seat       = $seatingGrid[$r][$c];
-                                        $isOccupied = isset($occupiedMap[$seat['ID_KURSI']]);
-                                        $passenger  = $isOccupied ? $occupiedMap[$seat['ID_KURSI']] : null;
-                                        $slug       = url_title($seat['KELAS_PENERBANAN'], '-', true);
-                                        $color      = $classColors[$seat['KELAS_PENERBANAN']] ?? '#3b82f6';
-                                        $statusCls  = $isOccupied ? 'seat-occupied' : 'seat-available';
+                            <?php 
+                            $letterIdx = 0;
+                            foreach ($layoutParts as $groupIndex => $groupSize): 
+                                $groupSize = (int)$groupSize;
+                            ?>
+                                <!-- Group -->
+                                <div class="col-group">
+                                    <?php for ($i = 0; $i < $groupSize; $i++): ?>
+                                        <?php 
+                                        $c = $expectedLetters[$letterIdx] ?? 'A';
+                                        $letterIdx++;
                                         ?>
-                                        <div class="seat seat-class-<?= $slug ?> <?= $statusCls ?>">
-                                            <?= $c ?>
-                                            <div class="tooltip">
-                                                <strong style="color:#60a5fa; font-size:13px;"><?= esc($seat['NO_KURSI2']) ?></strong>
-                                                <span class="badge btn-sm" style="float:right;font-size:9px;padding:2px 6px;background:<?= $color ?>;color:white;"><?= esc($seat['KELAS_PENERBANAN']) ?></span>
-                                                <div style="margin-top:8px;border-top:1px solid #334155;padding-top:6px;">
-                                                    <strong>Status:</strong>
-                                                    <?= $isOccupied ? '<span style="color:#ef4444;font-weight:700;">Terisi</span>' : '<span style="color:#22c55e;font-weight:700;">Tersedia</span>' ?><br>
-                                                    <?php if ($isOccupied): ?>
-                                                        <strong>Penumpang:</strong> <?= esc($passenger['nama_penumpang']) ?><br>
-                                                        <strong>No. Tiket:</strong> <?= esc($passenger['nomer_tiket']) ?>
-                                                    <?php else: ?>
-                                                        <span style="color:#94a3b8;font-style:italic;">Kursi kosong &amp; siap ditempati.</span>
-                                                    <?php endif; ?>
+                                        <?php if (isset($seatingGrid[$r][$c])): ?>
+                                            <?php
+                                            $seat       = $seatingGrid[$r][$c];
+                                            $isOccupied = isset($occupiedMap[$seat['ID_KURSI']]);
+                                            $passenger  = $isOccupied ? $occupiedMap[$seat['ID_KURSI']] : null;
+                                            $slug       = url_title($seat['KELAS_PENERBANAN'], '-', true);
+                                            $seatColor  = $classColors[$seat['KELAS_PENERBANAN']] ?? '#3b82f6';
+                                            $statusCls  = $isOccupied ? 'seat-occupied' : 'seat-available';
+                                            ?>
+                                            <div class="seat seat-class-<?= $slug ?> <?= $statusCls ?>">
+                                                <?= $c ?>
+                                                <div class="tooltip">
+                                                    <strong style="color:#60a5fa; font-size:13px;"><?= esc($seat['NO_KURSI2']) ?></strong>
+                                                    <span class="badge btn-sm" style="float:right;font-size:9px;padding:2px 6px;background:<?= $seatColor ?>;color:white;"><?= esc($seat['KELAS_PENERBANAN']) ?></span>
+                                                    <div style="margin-top:8px;border-top:1px solid #334155;padding-top:6px;">
+                                                        <strong>Status:</strong>
+                                                        <?= $isOccupied ? '<span style="color:#ef4444;font-weight:700;">Terisi</span>' : '<span style="color:#22c55e;font-weight:700;">Tersedia</span>' ?><br>
+                                                        <?php if ($isOccupied): ?>
+                                                            <strong>Penumpang:</strong> <?= esc($passenger['nama_penumpang']) ?><br>
+                                                            <strong>No. Tiket:</strong> <?= esc($passenger['nomer_tiket']) ?>
+                                                        <?php else: ?>
+                                                            <span style="color:#94a3b8;font-style:italic;">Kursi kosong &amp; siap ditempati.</span>
+                                                        <?php endif; ?>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    <?php else: ?>
-                                        <div class="seat-spacer"></div>
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                            </div>
+                                        <?php else: ?>
+                                            <div class="seat-spacer"></div>
+                                        <?php endif; ?>
+                                    <?php endfor; ?>
+                                </div>
+                                
+                                <?php if ($groupIndex < count($layoutParts) - 1): ?>
+                                    <div class="aisle-spacer">Aisle</div>
+                                <?php endif; ?>
 
-                            <div class="aisle-spacer">Aisle</div>
-
-                            <!-- Right -->
-                            <div class="col-group">
-                                <?php foreach ($rightCols as $c): ?>
-                                    <?php if (isset($seatingGrid[$r][$c])): ?>
-                                        <?php
-                                        $seat       = $seatingGrid[$r][$c];
-                                        $isOccupied = isset($occupiedMap[$seat['ID_KURSI']]);
-                                        $passenger  = $isOccupied ? $occupiedMap[$seat['ID_KURSI']] : null;
-                                        $slug       = url_title($seat['KELAS_PENERBANAN'], '-', true);
-                                        $color      = $classColors[$seat['KELAS_PENERBANAN']] ?? '#3b82f6';
-                                        $statusCls  = $isOccupied ? 'seat-occupied' : 'seat-available';
-                                        ?>
-                                        <div class="seat seat-class-<?= $slug ?> <?= $statusCls ?>">
-                                            <?= $c ?>
-                                            <div class="tooltip">
-                                                <strong style="color:#60a5fa; font-size:13px;"><?= esc($seat['NO_KURSI2']) ?></strong>
-                                                <span class="badge btn-sm" style="float:right;font-size:9px;padding:2px 6px;background:<?= $color ?>;color:white;"><?= esc($seat['KELAS_PENERBANAN']) ?></span>
-                                                <div style="margin-top:8px;border-top:1px solid #334155;padding-top:6px;">
-                                                    <strong>Status:</strong>
-                                                    <?= $isOccupied ? '<span style="color:#ef4444;font-weight:700;">Terisi</span>' : '<span style="color:#22c55e;font-weight:700;">Tersedia</span>' ?><br>
-                                                    <?php if ($isOccupied): ?>
-                                                        <strong>Penumpang:</strong> <?= esc($passenger['nama_penumpang']) ?><br>
-                                                        <strong>No. Tiket:</strong> <?= esc($passenger['nomer_tiket']) ?>
-                                                    <?php else: ?>
-                                                        <span style="color:#94a3b8;font-style:italic;">Kursi kosong &amp; siap ditempati.</span>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php else: ?>
-                                        <div class="seat-spacer"></div>
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                            </div>
+                            <?php endforeach; ?>
 
                             <div class="row-label"><?= $r ?></div>
                         </div>
@@ -634,6 +628,7 @@ function toSlug(str) {
 // ── Editor state ─────────────────────────────────────────────────────────
 let editorSeats       = [];
 let editorClasses     = {};   // name => color
+let editorLayoutKursi = '3-3';// global layout
 let editorSelected    = new Set();  // selected ID_KURSI (as strings)
 let activePillClass   = null;       // currently highlighted class pill
 let isDragging        = false;
@@ -656,8 +651,9 @@ document.getElementById('editorPlaneSelect').addEventListener('change', function
     fetch('<?= base_url('/kursi/get-plane-seats/') ?>' + id)
         .then(r => r.json())
         .then(data => {
-            editorSeats   = data.seats   || [];
-            editorClasses = data.classes || {};
+            editorSeats       = data.seats       || [];
+            editorClasses     = data.classes     || {};
+            editorLayoutKursi = data.layoutKursi || '3-3';
             const pesawat = data.pesawat || {};
 
             // Plane info badge
@@ -791,23 +787,50 @@ function renderEditorMap() {
     });
     rows.sort((a,b) => a-b); cols.sort();
 
-    const si = Math.ceil(cols.length / 2);
-    const lCols = cols.slice(0, si);
-    const rCols = cols.slice(si);
-
     rows.forEach(r => {
+        const layoutStr = editorLayoutKursi;
+        const layoutParts = layoutStr.split('-');
+
+        // Build expected letters
+        let expectedLetters = [];
+        if (layoutStr == '2-4-2') {
+            expectedLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+        } else if (layoutStr == '2-2-2') {
+            expectedLetters = ['A', 'B', 'C', 'D', 'E', 'F'];
+        } else if (layoutStr == '3-3') {
+            expectedLetters = ['A', 'B', 'C', 'D', 'E', 'F'];
+        } else if (layoutStr == '2-2') {
+            expectedLetters = ['A', 'B', 'C', 'D'];
+        } else if (layoutStr == '1-2-1') {
+            expectedLetters = ['A', 'D', 'G', 'K'];
+        } else {
+            const total = layoutParts.reduce((a,b) => parseInt(a)+parseInt(b), 0);
+            for (let i=0; i<total; i++) expectedLetters.push(String.fromCharCode(65+i));
+        }
+
         const rowDiv = document.createElement('div');
         rowDiv.className = 'seating-row';
-
-        rowDiv.appendChild(makeRowLabel(r));
-        rowDiv.appendChild(makeColGroup(lCols, r, grid));
-        const aisle = document.createElement('div');
-        aisle.className = 'aisle-spacer';
-        aisle.textContent = 'Aisle';
-        rowDiv.appendChild(aisle);
-        rowDiv.appendChild(makeColGroup(rCols, r, grid));
         rowDiv.appendChild(makeRowLabel(r));
 
+        let letterIdx = 0;
+        layoutParts.forEach((size, groupIdx) => {
+            const grpSize = parseInt(size);
+            const colsForGrp = [];
+            for (let i=0; i<grpSize; i++) {
+                colsForGrp.push(expectedLetters[letterIdx] || 'A');
+                letterIdx++;
+            }
+            rowDiv.appendChild(makeColGroup(colsForGrp, r, grid));
+
+            if (groupIdx < layoutParts.length - 1) {
+                const aisle = document.createElement('div');
+                aisle.className = 'aisle-spacer';
+                aisle.textContent = 'Aisle';
+                rowDiv.appendChild(aisle);
+            }
+        });
+
+        rowDiv.appendChild(makeRowLabel(r));
         hull.appendChild(rowDiv);
     });
 

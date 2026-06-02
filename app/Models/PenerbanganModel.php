@@ -17,7 +17,7 @@ class PenerbanganModel extends Model
         'KODE_PENERBANGAN'  => 'required|max_length[20]',
         'KOTA_ASAL'         => 'required|max_length[100]',
         'KOTA_TUJUAN'       => 'required|max_length[100]',
-        'HARGA'             => 'required|numeric',
+        'HARGA'             => 'permit_empty|numeric',
         'TANGGAL_BERANGKAT' => 'required',
         'WAKTU_BERANGKAT'   => 'required',
     ];

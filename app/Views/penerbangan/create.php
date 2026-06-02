@@ -35,15 +35,9 @@
                     </div>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="kode_penerbangan">Kode Penerbangan <span style="color:var(--danger)">*</span></label>
-                        <input type="text" name="kode_penerbangan" id="kode_penerbangan" class="form-control" placeholder="Otomatis terisi..." required>
-                    </div>
-                    <div class="form-group">
-                        <label for="harga">Harga Tiket Dasar (Rp) <span style="color:var(--danger)">*</span></label>
-                        <input type="number" name="harga" id="harga" class="form-control" placeholder="Contoh: 1500000" required>
-                    </div>
+                <div class="form-group">
+                    <label for="kode_penerbangan">Kode Penerbangan <span style="color:var(--danger)">*</span></label>
+                    <input type="text" name="kode_penerbangan" id="kode_penerbangan" class="form-control" placeholder="Otomatis terisi..." readonly required style="background-color: #f1f5f9; cursor: not-allowed; opacity: 0.8;">
                 </div>
 
                 <div class="form-row">
