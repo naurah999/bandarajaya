@@ -124,11 +124,37 @@ class Pesawat extends BaseController
 
     public function delete(int $id)
     {
+        $penerbanganModel = new \App\Models\PenerbanganModel();
+        
+        // Cek apakah pesawat ini sudah dipakai di penerbangan
+        $penerbangan = $penerbanganModel->where('ID_PESAWAT', $id)->findAll();
+        if (!empty($penerbangan)) {
+            return redirect()->to('/pesawat')->with('error', 'Gagal menghapus! Pesawat ini sedang digunakan pada jadwal penerbangan. Hapus jadwal penerbangan terkait terlebih dahulu.');
+        }
+
+        $kursiModel = new KursiModel();
+        
+        // Mulai transaksi database
+        $db = \Config\Database::connect();
+        $db->transStart();
+
         try {
+            // Hapus kursi terkait terlebih dahulu
+            $kursiModel->where('ID_PESAWAT', $id)->delete();
+            
+            // Hapus pesawat
             $this->model->delete($id);
-            return redirect()->to('/pesawat')->with('success', 'Data pesawat berhasil dihapus');
+            
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                return redirect()->to('/pesawat')->with('error', 'Gagal menghapus pesawat karena kesalahan sistem.');
+            }
+
+            return redirect()->to('/pesawat')->with('success', 'Data pesawat beserta kursinya berhasil dihapus');
         } catch (\Exception $e) {
-            return redirect()->to('/pesawat')->with('error', 'Gagal menghapus! Data pesawat ini masih memiliki data kursi atau penerbangan.');
+            $db->transRollback();
+            return redirect()->to('/pesawat')->with('error', 'Gagal menghapus! Pastikan tidak ada data lain yang bergantung pada pesawat ini.');
         }
     }
 
