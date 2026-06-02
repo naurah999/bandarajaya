@@ -10,7 +10,7 @@ class KursiModel extends Model
     protected $primaryKey       = 'ID_KURSI';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $allowedFields    = ['ID_PESAWAT', 'NO_KURSI2', 'KELAS_PENERBANAN', 'STATUS_KURSI'];
+    protected $allowedFields    = ['ID_PESAWAT', 'NO_KURSI2', 'KELAS_PENERBANAN'];
 
     protected $validationRules = [
         'ID_PESAWAT'       => 'required|numeric',

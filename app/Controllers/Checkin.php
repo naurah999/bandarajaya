@@ -75,6 +75,46 @@ class Checkin extends BaseController
         ]);
     }
 
+    public function getAllSeats(int $idTiket)
+    {
+        $tiketModel = new TiketModel();
+        $kursiModel = new KursiModel();
+        
+        $tiket = $tiketModel->find($idTiket);
+        if (!$tiket) {
+            return $this->response->setJSON([]);
+        }
+
+        $penerbanganModel = new \App\Models\PenerbanganModel();
+        $penerbangan = $penerbanganModel->find($tiket['ID_PENERBANGAN']);
+        
+        if (!$penerbangan) {
+            return $this->response->setJSON([]);
+        }
+
+        // Get ALL seats for this plane
+        $allSeats = $kursiModel->where('ID_PESAWAT', $penerbangan['ID_PESAWAT'])
+                               ->orderBy('NO_KURSI2', 'ASC')
+                               ->findAll();
+
+        // Get occupied seat IDs for this flight
+        $db = \Config\Database::connect();
+        $occupied = $db->table('CHECKIN')
+            ->select('CHECKIN.ID_KURSI')
+            ->join('TIKET', 'TIKET.ID_TIKET = CHECKIN.ID_TIKET')
+            ->where('TIKET.ID_PENERBANGAN', $tiket['ID_PENERBANGAN'])
+            ->get()
+            ->getResultArray();
+        $occupiedIds = array_column($occupied, 'ID_KURSI');
+
+        // Mark each seat as occupied or available
+        foreach ($allSeats as &$seat) {
+            $seat['occupied'] = in_array($seat['ID_KURSI'], $occupiedIds);
+        }
+
+        return $this->response->setJSON($allSeats);
+    }
+
     public function create()
     {
         $tiketModel = new TiketModel();
